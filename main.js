@@ -10,7 +10,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Platform
+  Platform,
+  AsyncStorage
 } from 'react-native';
 
 import { TabNavigator } from 'react-navigation';
@@ -19,6 +20,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Root from './app/list/index.js';
 import Video from './app/video/index.js';
 import Mine from './app/mine/index.js';
+import Login from './app/mine/login.js';
 
 const RootTabs = TabNavigator({
   Root: {
@@ -86,7 +88,56 @@ const RootTabs = TabNavigator({
 );
 
 export default class FoodSay extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { 
+      user:null,
+      logined:false
+    }
+  }
+
+  componentDidMount(){
+    this._asyncAppStatus()
+  }
+
+  _asyncAppStatus(){
+    let that = this
+    AsyncStorage.getItem('user')
+    .then((data)=>{
+      let user = this.state.user
+      let newState = {}
+      if(data){
+        user = JSON.parse(data)
+      }
+      //console.log(user.accessToken)
+      if(user[0] && user[0].accessToken){
+        newState.user = user[0]
+        newState.logined = true
+      }else{
+        newState.logined = false
+      }
+
+      that.setState(newState)
+    })
+  }
+
+  _afterLogin(user){
+    let that = this
+    user = JSON.stringify(user)
+    console.log(user)
+    AsyncStorage.setItem('user',user)
+    .then(()=>{
+      that.setState({
+        logined:true,
+        user:user
+      })
+    })
+  }
+
   render() {
+    if(!this.state.logined){
+      return <Login afterLogin ={this._afterLogin.bind(this)}/>
+    }
     return (
         <RootTabs />
     );

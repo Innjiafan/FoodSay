@@ -14,6 +14,8 @@ module.exports = {
 		base2:'http://rap2api.taobao.org/app/mock/2009/POST/',
 		list:'api/list',
 		comment:'api/comments',
-		up:'api/vote'
+		up:'api/vote',
+		signup:'api/u/signup',
+		verify:'api/u/verify'
 	}
 }
