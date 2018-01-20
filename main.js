@@ -22,6 +22,7 @@ import Video from './app/video/index.js';
 import Mine from './app/mine/index.js';
 import Login from './app/mine/login.js';
 
+
 const RootTabs = TabNavigator({
   Root: {
     screen: Root,
@@ -133,11 +134,21 @@ export default class FoodSay extends Component {
       })
     })
   }
+  _logout(){
+    AsyncStorage.removeItem('user')
+    this.setState({
+      logined:false,
+      user:null
+    })
+  }
 
   render() {
     if(!this.state.logined){
       return <Login afterLogin ={this._afterLogin.bind(this)}/>
     }
+    // if(this.state.logined){
+    //   return <Mine user={this.state.user} logout={this._logout.bind(this)}/>
+    // }
     return (
         <RootTabs />
     );

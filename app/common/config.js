@@ -17,6 +17,7 @@ module.exports = {
 		up:'api/vote',
 		signup:'api/u/signup',
 		verify:'api/u/verify',
-		signature:'api/signature'
+		signature:'api/signature',
+		update:'api/u/update'
 	}
 }
