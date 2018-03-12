@@ -29,7 +29,7 @@ let ImagePicker = require('react-native-image-picker')
 
 import config  from './../common/config.js';
 import request from './../common/request.js';
- 
+import Login from './login.js'
 let width = Dimensions.get('window').width
 
 //从相册选择图片
@@ -47,14 +47,14 @@ let photoOptions = {
   }
 }
 
-let CLOUDINARY = {
-  cloud_name: 'foodsay',  
-  api_key: '393474798975923',  
-  api_secret: 'SWOBZi6maQ74pYi_-dY_jrTNo20',  
-  base:'http://res.cloudinary.com/foodsay',
-  image: 'https://api.cloudinary.com/v1_1/foodsay/image/upload',
-  video:' https://api.cloudinary.com/v1_1/foodsay/video/upload'
-}
+// let CLOUDINARY = {
+//   cloud_name: 'foodsay',  
+//   api_key: '393474798975923',  
+//   //api_secret: 'SWOBZi6maQ74pYi_-dY_jrTNo20',  
+//   base:'http://res.cloudinary.com/foodsay',
+//   image: 'https://api.cloudinary.com/v1_1/foodsay/image/upload',
+//   video:' https://api.cloudinary.com/v1_1/foodsay/video/upload'
+// }
 function avatar(id,type){
   if(id.indexOf('http')>-1){
     return id
@@ -62,7 +62,11 @@ function avatar(id,type){
   if(id.indexOf('data:image') >-1){
     return id
   }
-  return CLOUDINARY.base + '/' +type +'/upload/' + id
+
+  // if(id.indexOf('avatar/')>-1){
+  //   return CLOUDINARY.base + '/' +type +'/upload/' + id
+  // }
+  return 'http://p3kjn8fdy.bkt.clouddn.com/'+id
 }
 class Mine extends Component {
 
@@ -74,7 +78,8 @@ class Mine extends Component {
      avatarProgress:0,
      avatarUploading:false,
      animationType:'fade',
-    modalVisible:false,
+     modalVisible:false,
+     logined:false
     }
   }
 
@@ -84,8 +89,8 @@ class Mine extends Component {
     .then((data)=>{
       let user
       if(data){
-        user = JSON.parse(data)[0]
-         //console.log(user)
+        user = JSON.parse(data)
+        console.log(user)
       }
       if(user && user.accessToken){
         that.setState({
@@ -106,6 +111,20 @@ class Mine extends Component {
       modalVisible:false
     })
   }
+
+  _getQiniuToken(){
+    let accessToken = this.state.user.accessToken
+    let signatureURL=config.api.base3 + config.api.signature
+    //console.log(signatureURL)
+    return request.post(signatureURL,{
+        accessToken:accessToken,
+        cloud:'qiniu',
+        type:'avatar'
+      })
+      .catch((err)=>{
+        console.log(err)
+      }) 
+  }
   //从相册中获取图片
   _pickPhoto(){
     let that = this
@@ -116,79 +135,78 @@ class Mine extends Component {
       }
       let avatarData = 'data:image/jpeg;base64,'+res.data;
       let user = this.state.user;
-      // user.avatar = avatarData;
-      // that.setState({
-      //   user:user
-      // })
-
-      let timestamp = Date.now()
-      let tags = 'app,avatar'
-      let folder = 'avatar'
-      let signatureURL=config.api.base2 + config.api.signature
-      let accessToken = this.state.user.accessToken
-
-      request.post(signatureURL,{
-        accessToken:accessToken,
-        timestamp:timestamp,
-        folder:folder,
-        tags:tags,
-        type:'avatar'
-      })
-      .catch((err)=>{
-        console.log(err)
-      })
-      .then((data)=>{
-        console.log(data)
-        if(data && data.success){
-          let signature='folder='+folder+'&tags='+tags+'&timestamp='+timestamp+CLOUDINARY.api_secret
-          
-          signature=sha1(signature)
+      let uri = res.uri 
+      //console.log(uri)
+      that._getQiniuToken()
+        .then((data)=>{
+          if(data && data.success){
+          //console.log(data.data)
+          let token = data.data.token
+          let key = data.data.key
           let body = new FormData()
+          body.append('token',token)
+          body.append('key',key)
+          body.append('file',{
+            type:'image/jpeg',
+            uri:uri,
+            name:key,
+          })
+
           //console.log(body)
-
-          body.append('folder',folder)
-          body.append('signature',signature)
-          body.append('tags',tags)
-          body.append('timestamp',timestamp)
-          body.append('api_key',CLOUDINARY.api_key)
-          body.append('resource_type','image')
-          body.append('file',avatarData)
-
-
           that._upload(body)
-        }
-      })
-      // else if (res.error) {
-      //   console.log('ImagePicker Error: ', res.error);
-      // }
-      // else if (res.customButton) {
-      //   console.log('User tapped custom button: ', res.customButton);
-      // }
-      // else {
-      //   let source = { uri: res.uri };
-     
-      //   // You can also display the image using data:
-      //   // let source = { uri: 'data:image/jpeg;base64,' + res.data };
-      // }
+          }
+        })
+      // request.post(signatureURL,{
+      //   accessToken:accessToken,
+      //   timestamp:timestamp,
+      //   // folder:folder,
+      //   // tags:tags,
+      //   type:'avatar'
+      // })
+      // .catch((err)=>{
+      //   console.log(err)
+      // })
+      // .then((data)=>{
+      //   console.log(data)
+      //   if(data && data.success){
+      //     // let signature='folder='+folder+'&tags='+tags+'&timestamp='+timestamp+CLOUDINARY.api_secret
+          
+      //     // signature=sha1(signature)
+      //     //let signature = data.data
+      //     let signature = data.data
+      //     let body = new FormData()
+      //     //console.log(body)
+
+      //     body.append('folder',folder)
+      //     body.append('signature',signature)
+      //     body.append('tags',tags)
+      //     body.append('timestamp',timestamp)
+      //     body.append('api_key',CLOUDINARY.api_key)
+      //     body.append('resource_type','image')
+      //     body.append('file',avatarData)
+
+
+      //     that._upload(body)
+      //   }
+      // })
     })
   }
 
   _upload(body){
-    console.log(body)
     let that = this
     let xhr = new XMLHttpRequest()
-    let url = CLOUDINARY.image
+    let url = config.qiniu.upload
 
+    console.log(url)
     this.setState({
       avatarUploading:true,
       avatarProgress:0
     })
     xhr.open('POST',url)
     xhr.onload=()=>{
-      if(xhr.status != 200){
+      if(xhr.status !== 200){
         Alert.alert('请求失败')
         console.log(xhr.responseText)
-
         return
       }
 
@@ -198,7 +216,6 @@ class Mine extends Component {
       }
 
       let response
-      console.log(response)
       try{
         response = JSON.parse(xhr.response)
         console.log(response)
@@ -207,10 +224,16 @@ class Mine extends Component {
         console.log(e)
         console.log('parse fail')
       }
-
-      if(response && response.public_id){
+      if(response){
         let user = this.state.user
-        user.avatar = response.public_id
+        if(response.public_id){
+          user.avatar = response.public_id
+        }
+
+        if(response.key){
+          user.avatar = response.key
+        }
+
         console.log(user.avatar)
         that.setState({
           avatarUploading:false,
@@ -219,7 +242,6 @@ class Mine extends Component {
         })
 
         that._asycUser(true)
-
       }
     }
 
@@ -242,8 +264,7 @@ class Mine extends Component {
     let that = this
     let user = this.state.user
     if(user && user.accessToken){
-      let url = config.api.base2 + config.api.update
-
+      let url = config.api.base3 + config.api.update
       request.post(url,user)
       .then((data)=>{
         if(data && data.success){
@@ -268,7 +289,17 @@ class Mine extends Component {
   }
 
   _logout(){
-    this.props.logout()
+    let that = this
+    // console.log(this.props.navigation)
+    // AsyncStorage.removeItem('user')
+    // .then(()=>{
+    //   that.setState({
+    //     logined:false,
+    //     // user:null
+    //   })
+    // })
+    //this.props.navigation.goBack()
+    
   }
 
   _changeUserState(key,value){
@@ -277,12 +308,14 @@ class Mine extends Component {
     this.setState({
       user:user
     })
-    console.log(user)
+    //console.log(user)
   }
+
 
   render(){
     let user = this.state.user
-    //console.log(user.avatar);
+    //user = JSON.parse(user)
+    console.log(user);
     return (
       <View style = {styles.container} >
         <View style={styles.toolbar}>
@@ -368,6 +401,19 @@ class Mine extends Component {
                 />
               </View>
               <View style={styles.fieldItem}>
+                <Text style={styles.label}>电话</Text>
+                <TextInput
+                  placeholder={'输入你的手机号码'}
+                  style={styles.inputField}
+                  autoCapitalize={'none'}
+                  autoCorrect={false}
+                  defaultValue={user.phoneNumber}
+                  onChangeText={(text)=>{
+                    this._changeUserState('phoneNumber',text)
+                  }}
+                />
+              </View>
+              <View style={styles.fieldItem}>
                 <Text style={styles.label}>性别</Text>
                 <Icon.Button
                   onPress={()=>{
@@ -431,13 +477,19 @@ const styles = StyleSheet.create({
     fontSize:16,
     color:'#fff',
     textAlign:'center',
-    fontWeight:'600'
+    fontWeight:'600',
+    marginLeft:34,
+    //justifyContent:'center'
   },
   //edit
   toolbarEdit:{
-    position:'absolute',
-    right:10,
-    top:Platform.OS === 'ios'?28:8,
+    // position:'absolute',
+    // right:10,
+    // top:Platform.OS === 'ios'?28:8,
+    //flex:1,
+    //justifyContent:'flex-end',
+    marginTop:8,
+    marginRight:10,
     color:'#fff',
     textAlign:'right',
     fontWeight:'600',

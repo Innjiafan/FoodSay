@@ -6,4 +6,10 @@
 
 import main from './main.js';
 
+// export default class FoodSay extends Component {
+// 	render(){
+// 		<
+// 	}
+// }
 
+// AppRegistry.registerComponent('FoodSay', () => FoodSay);

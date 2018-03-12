@@ -14,14 +14,26 @@ import {
   AsyncStorage
 } from 'react-native';
 
-import { TabNavigator } from 'react-navigation';
+import { TabNavigator ,StackNavigator} from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Root from './app/list/index.js';
-import Video from './app/video/index.js';
+import Edit from './app/video/index.js';
 import Mine from './app/mine/index.js';
 import Login from './app/mine/login.js';
 
+const TurnTo = StackNavigator({
+  Mine:{screen:Mine},
+  Login:{screen:Login}
+},
+  {
+   headerMode: 'none',
+   mode: 'modal',
+   navigationOptions: {
+     gesturesEnabled: false,
+     initialRouteName:Mine,
+   }
+ })
 
 const RootTabs = TabNavigator({
   Root: {
@@ -36,8 +48,8 @@ const RootTabs = TabNavigator({
         />
       )}
   },
-  Video: {
-    screen: Video,
+  Edit: {
+    screen: Edit,
     navigationOptions: {
       tabBarLabel:'添加',
       tabBarIcon: ({ tintColor, focused }) => (
@@ -86,8 +98,7 @@ const RootTabs = TabNavigator({
 
   }
 }
-);
-
+)
 export default class FoodSay extends Component {
   constructor(props) {
     super(props)
@@ -111,8 +122,8 @@ export default class FoodSay extends Component {
         user = JSON.parse(data)
       }
       //console.log(user.accessToken)
-      if(user[0] && user[0].accessToken){
-        newState.user = user[0]
+      if(user && user.accessToken){
+        newState.user = user
         newState.logined = true
       }else{
         newState.logined = false
@@ -125,7 +136,7 @@ export default class FoodSay extends Component {
   _afterLogin(user){
     let that = this
     user = JSON.stringify(user)
-    console.log(user)
+    //console.log(JSON.parse(user))
     AsyncStorage.setItem('user',user)
     .then(()=>{
       that.setState({
@@ -134,13 +145,9 @@ export default class FoodSay extends Component {
       })
     })
   }
-  _logout(){
-    AsyncStorage.removeItem('user')
-    this.setState({
-      logined:false,
-      user:null
-    })
-  }
+  // _logout(){
+    
+  // }
 
   render() {
     if(!this.state.logined){

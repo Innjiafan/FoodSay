@@ -41,7 +41,7 @@ class Detail extends Component {
     let data = this.props.navigation.state.params.data;
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     //console.log(data.author);
-    //console.log(data);
+    console.log(data);
     this.state = { 
       data:data,
       isLoadingTail:false,
@@ -161,11 +161,12 @@ _fetchData(page) {
         isLoadingTail:true
       })
     request.get(config.api.base1+config.api.comment,{
-      accessToken: 'abcee',
+      //accessToken: this.state.user.accessToken,
       page: page,
       videoId:data._id
     })
       .then(data => {
+          console.log(data)
          if(data.success){
           let items = cachedResults.items.slice();
           items = items.concat(data.data)

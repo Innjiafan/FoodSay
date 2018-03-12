@@ -13,7 +13,8 @@ import {
   Platform,
   StatusBar,
   RefreshControl,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
@@ -38,7 +39,9 @@ class Item extends Component{
   constructor(props) {
     super(props);
     let row = this.props.row;
-    this.state = { 
+    let user = this.props.user||{}
+    this.state = {
+      user:user,
       up:row.voted, 
       row: row
     };
@@ -47,13 +50,13 @@ class Item extends Component{
 //点赞事件
   _up(row) {
     let that = this;
-    let url = config.api.base2+config.api.up; 
+    let url = config.api.base3+config.api.up; 
     let up = !this.state.up;
 
     let body = {
       id: row._id,
       up:up?true:false,
-      accessToken:'abce'
+      accessToken:this.state.user.accessToken
     };
 
     request.post(url,body)
@@ -123,7 +126,9 @@ class List extends Component {
   constructor(props) {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    this.state = { 
+    let user = this.props.user||{}
+    this.state = {
+      user:user, 
       isLoadingTail: false,
       dataSource: ds.cloneWithRows([
         ]),
@@ -133,7 +138,23 @@ class List extends Component {
 
    //组件加载完成
   componentDidMount(){
-    this._fetchData(1);
+    let that = this
+    AsyncStorage.getItem('user')
+    .then((data)=>{
+      let user
+      if(data){
+        user = JSON.parse(data)
+        //console.log(user)
+      }
+      if(user && user.accessToken){
+        that.setState({
+          user:user
+        })
+      }
+    })
+    .then(()=>{
+      that._fetchData(1)
+    })
   }
 
   _fetchData(page) {
@@ -148,14 +169,17 @@ class List extends Component {
         isRefreshing:true
       })
     }
-    request.get(config.api.base1+config.api.list,{
-      accessToken: 'abcee',
-      page: page
+    //console.log('贾帆'+that.state.user.accessToken)
+    let accessToken = this.state.user.accessToken
+    //let url = 
+    request.get(config.api.base3+config.api.list,{
+      //accessToken: accessToken,
+      page:page
     })
       .then(data => {
          // console.log(responseJson.success);
         // console.log(this.state.dataSource);
-
+          console.log(data)
          if(data.success){
           let items = cachedResults.items.slice();
 
@@ -248,7 +272,7 @@ class List extends Component {
   _renderRow(row){
     return(
       //jsx
-     <Item row = {row} navigation = {this.props.navigation}/>
+     <Item row = {row} navigation = {this.props.navigation} user = {this.state.user}/>
     )
   }
 

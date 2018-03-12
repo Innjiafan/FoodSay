@@ -4,6 +4,13 @@
  * @flow
  */
 
-import main from './main.js';
+import Main from './main.js';
+
+// export default class FoodSay extends Component {
+// 	render(){
+// 		<Main />
+// 	}
+// }
 
 
+// AppRegistry.registerComponent('FoodSay', () => FoodSay);

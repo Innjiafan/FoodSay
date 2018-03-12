@@ -16,17 +16,18 @@ import {
   Platform
 } from 'react-native';
 
+
+import { StackNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button'
-import { StackNavigator } from 'react-navigation'
+
 
 import config  from './../common/config.js';
 import request from './../common/request.js';
-import Regist from './regist.js'
 
 let width = Dimensions.get('window').width;
 
-class Login extends Component {
+class Regist extends Component {
 
   constructor(props) {
     super(props)
@@ -49,29 +50,28 @@ class Login extends Component {
       password:password
     }
 
-    let loginUrl = config.api.base3+config.api.login
-    console.log(loginUrl)
+    let loginUrl = config.api.base3+config.api.regist
     request.post(loginUrl,body)
       .then((data)=>{
         if(data && data.success){
-          console.log(data.data)
-          that.props.afterLogin(data.data)
-          //that.props.navigation.navigate('Main',{data:data.data})
+          console.log(data)
+          that.props.navigation.goBack()
+          //that.props.afterLogin(data.data)
         }else{
-          Alert.alert('登录失败，请检查用户名或密码是否正确')
+          Alert.alert('注册失败,用户名已注册')
         }
       })
       .catch((err)=>{
         console.log(err)
-        Alert.alert('登录失败，请检查网络是否良好')
+        Alert.alert('注册失败，请检查网络是否良好')
       })
   }
-
+  
   render(){
     return (
       <View style = {styles.container} >
         <View style = {styles.header}>
-          <Text style = {styles.headerTitle}>登录页面</Text>
+         <Text style = {styles.headerTitle}>注册页面</Text>
         </View>
         <View style={styles.signupBox}>
           <TextInput
@@ -100,36 +100,26 @@ class Login extends Component {
               })
             }}
           />
+           <TextInput
+            placeholder='再次输入密码'
+            autoCaptialize={'none'}
+            autoCorrect={false}
+            underlineColorAndroid='transparent'
+            keyboardType={'numeric'}
+            style={styles.inpuField}
+          />
           <Button
               style={styles.btn}
-              onPress={this._submit.bind(this)}>登录</Button>
+              onPress={this._submit.bind(this)}>注册</Button>
           <View style={styles.signInBox}>
-            <Text>还没账号？<Text style={styles.signIn} onPress={()=>{
-               this.props.navigation.navigate('Regist')
-            }}>前去注册</Text></Text>
+            <Text>已有账号？<Text style={styles.signIn} onPress={()=>{this.props.navigation.goBack()}}>直接登录</Text></Text>
           </View>
         </View>
+        
       </View>
       )
   }
 }
-// const Login = StackNavigator({
-//   Loginer: {
-//     screen: Loginer,
-//   },
-//   Regist: {
-//     screen: Regist,
-//   }
-// },
-// {
-//    headerMode: 'none',
-//    mode: 'modal',
-//    navigationOptions: {
-//      gesturesEnabled: false,
-//      initialRouteName:Loginer,
-//    }
-//  }
-// )
 
 const styles = StyleSheet.create({
   container: {
@@ -179,7 +169,6 @@ const styles = StyleSheet.create({
      color:'#ee735c',
      fontSize:14
   }
-
 })
 
-module.exports = Login
+module.exports = Regist
