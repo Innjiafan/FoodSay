@@ -79,7 +79,7 @@ class Mine extends Component {
      avatarUploading:false,
      animationType:'fade',
      modalVisible:false,
-     logined:false
+    // logined:false
     }
   }
 
@@ -90,7 +90,7 @@ class Mine extends Component {
       let user
       if(data){
         user = JSON.parse(data)
-        console.log(user)
+        //console.log(user)
       }
       if(user && user.accessToken){
         that.setState({
@@ -320,7 +320,7 @@ class Mine extends Component {
       <View style = {styles.container} >
         <View style={styles.toolbar}>
           <Text style={styles.toolbarTitle}>我的页面</Text>
-          <Text style={styles.toolbarEdit} onPress={this._edit.bind(this)}>编辑</Text>
+          <Text style={styles.toolbarEdit} onPress={this._logout.bind(this)}>注销</Text>
         </View>
 
         {
@@ -452,8 +452,20 @@ class Mine extends Component {
         </Modal>
         <Button
               style={styles.btn}
-              onPress={this._logout.bind(this)}
-              >退出登录</Button>
+              onPress={this._edit.bind(this)}
+              >我的资料</Button>
+        <Button
+              style={styles.btn1}
+              onPress={this._edit.bind(this)}
+              >我的视频</Button>
+         <Button
+              style={styles.btn1}
+              onPress={this._edit.bind(this)}
+              >我的文章</Button>
+         <Button
+              style={styles.btn1}
+              onPress={this._edit.bind(this)}
+              >我的关注</Button>
       </View>
       )
   }
@@ -591,16 +603,35 @@ const styles = StyleSheet.create({
     backgroundColor:'#ee735c'
   },
   btn:{
+    width:width,
     padding:10,
-    marginTop:25,
-    marginRight:10,
-    marginLeft:10,
+    //marginTop:25,
+    //marginRight:10,
+    //marginLeft:10,
     backgroundColor:'transparent',
-    borderColor:'#ee735c',
+    borderColor:'#ccc',
+    //borderTopColor:'transparent',
+    borderStyle:'dashed',
     borderWidth:1,
-    borderRadius:4,
-    color:'#ee735c'
+    //borderRadius:4,
+    color:'#ee735c',
+    fontWeight:'200'
   },
+  btn1:{
+    width:width,
+    padding:10,
+    //marginTop:25,
+    //marginRight:10,
+    //marginLeft:10,
+    backgroundColor:'transparent',
+    borderColor:'#ccc',
+    borderWidth:1,
+    borderTopColor:'transparent',
+    borderStyle:'dashed',
+    //borderRadius:4,
+    color:'#ee735c',
+    fontWeight:'200'
+  }
 
 })
 

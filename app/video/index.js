@@ -308,7 +308,7 @@ class Edit extends Component {
            <View style={styles.fieldItem}>
                 <Text style={styles.label}>标题</Text>
                 <TextInput
-                  placeholder={'输入视频或文章标题'}
+                  placeholder={'输入视频标题'}
                   style={styles.inputField}
                   autoCapitalize={'none'}
                   autoCorrect={false}

@@ -3,8 +3,7 @@
  * https://github.com/facebook/react-native
  * @flow
  */
- //对请求的封装
-import queryString from 'query-string';
+const queryString = require('query-string')
 let _ = require('lodash');
 let request = {};
 let config = require('./config');

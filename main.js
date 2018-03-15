@@ -20,18 +20,20 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Root from './app/list/index.js';
 import Edit from './app/video/index.js';
 import Mine from './app/mine/index.js';
+import Life from './app/life/index.js'
 import Login from './app/mine/login.js';
+import PlusArticle from './app/life/plusArticle.js'
 
-const TurnTo = StackNavigator({
-  Mine:{screen:Mine},
-  Login:{screen:Login}
+const Second = StackNavigator({
+  Life:{screen:Life},
+  PlusArticle:{screen:PlusArticle}
 },
   {
    headerMode: 'none',
    mode: 'modal',
    navigationOptions: {
      gesturesEnabled: false,
-     initialRouteName:Mine,
+     initialRouteName:Life,
    }
  })
 
@@ -48,13 +50,25 @@ const RootTabs = TabNavigator({
         />
       )}
   },
+  Second:{
+    screen:Second,
+    navigationOptions: {
+      tabBarLabel:'生活',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Ionicons
+          name={focused ? 'ios-list' : 'ios-list-outline'}
+          size={22}
+          style={{ color: tintColor }}
+        />
+      )}
+  },
   Edit: {
     screen: Edit,
     navigationOptions: {
-      tabBarLabel:'添加',
+      tabBarLabel:'视频',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
-          name={focused ? 'ios-add-circle' : 'ios-add-circle-outline'}
+          name={focused ? 'ios-videocam' : 'ios-videocam-outline'}
           size={22}
           style={{ color: tintColor }}
         />
@@ -145,17 +159,17 @@ export default class FoodSay extends Component {
       })
     })
   }
-  // _logout(){
+  _logout(){
     
-  // }
+  }
 
   render() {
-    if(!this.state.logined){
-      return <Login afterLogin ={this._afterLogin.bind(this)}/>
-    }
-    // if(this.state.logined){
-    //   return <Mine user={this.state.user} logout={this._logout.bind(this)}/>
+    // if(!this.state.logined){
+    //   return <Login afterLogin ={this._afterLogin.bind(this)}/>
     // }
+   // if(this.state.logined){
+   //    return <Mine user={this.state.user} logout={this._logout.bind(this)}/>
+   //  } 
     return (
         <RootTabs />
     );

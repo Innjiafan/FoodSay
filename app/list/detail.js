@@ -13,7 +13,8 @@ import {
   ListView,
   TextInput,
   Modal,
-  Alert
+  Alert,
+  AsyncStorage
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
@@ -39,10 +40,13 @@ class Detail extends Component {
   constructor(props) {
     super(props);
     let data = this.props.navigation.state.params.data;
+    let user = this.props.user||{}
+    //console.log(data)
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     //console.log(data.author);
-    console.log(data);
-    this.state = { 
+   //console.log(data);
+    this.state = {
+      user:user, 
       data:data,
       isLoadingTail:false,
       dataSource:ds.cloneWithRows([
@@ -84,6 +88,7 @@ class Detail extends Component {
       content:''
     };
   }
+
   _onLoadStart(){
     console.log('load start')
   }
@@ -130,6 +135,7 @@ class Detail extends Component {
   }
 
   _rePlay(){
+    //这个ref指向找不到
     this.ref.videoPlayer.seek(0)
   }
 
@@ -151,7 +157,23 @@ class Detail extends Component {
   }
 
   componentDidMount(){
-    this._fetchData(1)
+    let that = this
+     AsyncStorage.getItem('user')
+    .then((data)=>{
+      let user
+      if(data){
+        user = JSON.parse(data)
+        //console.log(user)
+      }
+      if(user && user.accessToken){
+        that.setState({
+          user:user
+        })
+      }
+    })
+    .then(()=>{
+      that._fetchData(1)
+    })
   }
 
 _fetchData(page) {
@@ -160,6 +182,8 @@ _fetchData(page) {
       this.setState({
         isLoadingTail:true
       })
+      // console.log(this.state.user.accessToken);
+      // console.log(data);
     request.get(config.api.base1+config.api.comment,{
       //accessToken: this.state.user.accessToken,
       page: page,
@@ -191,6 +215,7 @@ _fetchData(page) {
           })
         console.error(error);
       })
+
   
   }
   //判断是否有更多数据
@@ -264,7 +289,7 @@ _fetchData(page) {
     return(
       <View style = {styles.listHeader}>
         <View style={styles.infoBox}>
-          <Image style={styles.avatar} source={{uri:data.author.avatar}}/>
+          <Image style={styles.avatar} source={{uri:'http://p3kjn8fdy.bkt.clouddn.com/'+data.author.avatar}}/>
           <View style={styles.descBox}>
             <Text style={styles.nickname}>作者：{data.author.nickname}</Text>
             <Text style={styles.title}>标题：{data.title}</Text>
@@ -304,16 +329,17 @@ _fetchData(page) {
     },()=>{
      // console.log(this.state.isSending)
      let body ={
-        accessToken:'abc',
-        list:'1233',
+        accessToken:this.state.user.accessToken,
+        list:this.state.data._id,
         content:this.state.content
       }
 
-      let url = config.api.base2+config.api.comment
+      let url = config.api.base3+config.api.comment1
      // console.log(url);
 
       request.post(url,body)
       .then(function(data){
+        console.log(data)
         if(data && data.success){
           let items =cachedResults.items.slice()
           let content = that.state.content

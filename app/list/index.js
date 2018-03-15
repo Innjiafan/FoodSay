@@ -25,6 +25,7 @@ import request from './../common/request.js';
 import config  from './../common/config.js';
 import Detail from './detail.js'
 
+
 let width = Dimensions.get('window').width;
 
 //缓存列表所有数据
@@ -165,24 +166,23 @@ class List extends Component {
         isLoadingTail:true
       })
     }else{
+     
       this.setState({
         isRefreshing:true
       })
     }
-    //console.log('贾帆'+that.state.user.accessToken)
-    let accessToken = this.state.user.accessToken
-    //let url = 
-    request.get(config.api.base3+config.api.list,{
-      //accessToken: accessToken,
-      page:page
-    })
+      let body = {
+        total:cachedResults.items.length,
+        page:page
+      }
+      request.post(config.api.base3+config.api.list,body) 
       .then(data => {
          // console.log(responseJson.success);
         // console.log(this.state.dataSource);
           console.log(data)
          if(data.success){
           let items = cachedResults.items.slice();
-
+          
           if(page !== 0){
             items = items.concat(data.data)
             cachedResults.nextPage += 1
@@ -194,7 +194,7 @@ class List extends Component {
           cachedResults.total = data.total;
 
           setTimeout(function(){
-            if(page !==0){
+            if(page !== 0){
               that.setState({
                 isLoadingTail:false,
                 dataSource: that.state.dataSource.cloneWithRows(
@@ -212,7 +212,7 @@ class List extends Component {
          };
       })
       .catch(error => {
-        if(page !==0){
+        if(page !==0 ){
         this.setState({
               isLoadingTail:false
           });
@@ -226,6 +226,8 @@ class List extends Component {
   }
   //判断是否有更多数据
   _hasMore(){
+    // console.log('缓存数剧长度'+cachedResults.items.length)
+    // console.log('数据库数剧长度'+cachedResults.total)
     return cachedResults.items.length !== cachedResults.total;
   }
 
@@ -240,9 +242,12 @@ class List extends Component {
   }
 
    _onRefresh(){
+    // Alert.alert('触发了1')
     if(!this._hasMore() || this.state.isRefreshing){
+      Alert.alert('没有最新数据')
       return 
     }
+    Alert.alert('触发了')
     this._fetchData(0)
   }
   //底部下拉数据提示信息
@@ -263,7 +268,7 @@ class List extends Component {
         <ActivityIndicator
           animating={this.state.animating}
           style={[styles.loadingMore, {height: 20}]}
-          size="large"
+          size="small"
         />
       );
   }
@@ -275,7 +280,6 @@ class List extends Component {
      <Item row = {row} navigation = {this.props.navigation} user = {this.state.user}/>
     )
   }
-
 
   render(){
      return (
@@ -289,6 +293,7 @@ class List extends Component {
           enableEmptySections={true}
           showsVerticalScrollIndicator={false}
           automaticallyAdjustContentInsets ={false}
+          onEndReachedThreshold={40}
           onEndReached = {this._fetchMoreData.bind(this)}
           refreshControl={
             <RefreshControl 
@@ -296,13 +301,11 @@ class List extends Component {
               onRefresh={this._onRefresh.bind(this)}
               tintColor="#ff6600"
               title='拼命加载中...'
-              progressViewOffset={10}
-              progressBackgroundColor="#ffff"
+              progressBackgroundColor="#fff"
               colors={["#ff6600"]}
             />
           }
           //dp
-          onEndReachedThreshold={20}
           renderFooter = {this._renderFooter.bind(this)}
         />
       </View>
@@ -335,16 +338,19 @@ const styles = StyleSheet.create({
   header:{
     marginTop:Platform.OS === 'ios'?20:0,
     paddingBottom: 8,
-    paddingTop: 8,
+    // paddingTop: 8,
     backgroundColor: '#ee735c',
+    flexDirection:'row',
+    //position:'relative'
   },
   headerTitle: {
     color:'#fff',
     fontSize: 16,
     textAlign: 'center',
     fontWeight: '600',
+    marginTop:8,
+    marginLeft:width/2-60,
   },
-
   item:{
     width:width,
     borderBottomWidth:1,
