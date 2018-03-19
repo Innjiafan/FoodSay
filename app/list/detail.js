@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Platform,
   Image,
-  ScrollView,
   ListView,
   TextInput,
   Modal,
@@ -49,26 +48,7 @@ class Detail extends Component {
       user:user, 
       data:data,
       isLoadingTail:false,
-      dataSource:ds.cloneWithRows([
-        {
-          "_id": "810000197509067439",
-          "title": "Gybx Rrnlfgoe",
-          "replyBy": {
-            "nickname": "Dorothy Martinez",
-            "avatar": "http://dummyimage.com/640X640/d479f2"
-          },
-          "content": "到事况边此质去真千好事京物由叫难严。向知命民片群响装个公话接时目红与立。要风间革及是专住样次价酸比。"
-        },
-        {
-          "_id": "52000019780622768X",
-          "title": "Qgjr Owaucsq",
-          "replyBy": {
-            "nickname": "Angela Hernandez",
-            "avatar": "http://dummyimage.com/640X640/79f2b1"
-          },
-          "content": "八处运别自员合每计具直养。"
-        }
-        ]),
+      dataSource:ds.cloneWithRows([]),
       rate:1.0,
       muted:false,
       resizeMode:'contain',
@@ -184,7 +164,7 @@ _fetchData(page) {
       })
       // console.log(this.state.user.accessToken);
       // console.log(data);
-    request.get(config.api.base1+config.api.comment,{
+    request.get(config.api.base3+config.api.commentlist,{
       //accessToken: this.state.user.accessToken,
       page: page,
       videoId:data._id
@@ -193,7 +173,8 @@ _fetchData(page) {
           console.log(data)
          if(data.success){
           let items = cachedResults.items.slice();
-          items = items.concat(data.data)
+          //items = items.concat(data.data)
+          items = data.data
           cachedResults.nextPage += 1
         
 
@@ -238,7 +219,7 @@ _fetchData(page) {
       if(!this._hasMore()&&cachedResults.total !== 0){
         return(
           <View style = {styles.loadingMore}>
-            <Text style = {styles.loadingText}>没有更多了</Text>
+            <Text style = {styles.loadingText}>没有更多评论了</Text>
           </View>
         );
 
@@ -260,7 +241,7 @@ _fetchData(page) {
     //console.log(row)
     return (
         <View key={row._id} style={styles.replyBox}>
-          <Image style={styles.replyavatar} source={{uri:row.replyBy.avatar}}/>
+          <Image style={styles.replyavatar} source={{uri:'http://p3kjn8fdy.bkt.clouddn.com/'+row.replyBy.avatar}}/>
           <View style={styles.reply}>
             <Text style={styles.replyNickname}>{row.replyBy.nickname}</Text>
             <Text style={styles.replyContent}>{row.content}</Text>
@@ -334,7 +315,7 @@ _fetchData(page) {
         content:this.state.content
       }
 
-      let url = config.api.base3+config.api.comment1
+      let url = config.api.base3+config.api.comment
      // console.log(url);
 
       request.post(url,body)
@@ -346,8 +327,8 @@ _fetchData(page) {
           items=[{
             content:that.state.content,
             replyBy:{
-              nickname:'第一人',
-              avatar:'http://dummyimage.com/640X640/79f2c9'
+              nickname:data.data.nickname,
+              avatar:'http://p3kjn8fdy.bkt.clouddn.com/'+data.data.avatar
             }
           }].concat(items)
         //  console.log(items);

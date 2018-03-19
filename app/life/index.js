@@ -13,7 +13,11 @@ import {
   TextInput,
   Dimensions,
   Alert,
-  Platform
+  Platform,
+  ListView,
+  RefreshControl,
+  TouchableHighlight,
+  Image
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -22,16 +26,66 @@ import PlusArticle from './plusArticle.js'
 
 let width = Dimensions.get('window').width;
 
+class Item extends Component{
+
+  constructor(props) {
+    super(props);
+    let row = this.props.row;
+    let user = this.props.user||{}
+    this.state = {
+      user:user,
+      row: row
+    };
+  }
+  render(){
+    let row = this.state.row;
+    //console.log(row);
+    return(
+        <View style = {styles.item}>
+          <Text style = {styles.title}>{}</Text>
+          <TouchableHighlight  onPress={() => this.props.navigation.navigate('Detail',{data:row})}>
+          <Image
+           style={styles.thumb}
+           source={{uri: row}}
+          >
+          </Image>
+          </TouchableHighlight>
+        </View>
+
+    )
+  }
+}
 class Life extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { 
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    let user = this.props.user||{}
+    this.state = {
+      user:user, 
+      isRefreshing:false,
+      dataSource:ds.cloneWithRows([
+        ]),
     }
   }
 
   _plusArticle(){
     this.props.navigation.navigate('PlusArticle')
+  }
+  _renderRow(){
+
+  }
+  _fetchMoreData(){
+
+  }
+  _onRefresh(){
+
+  }
+  _renderFooter(){
+    return(
+      //jsx
+     <Item navigation = {this.props.navigation} user = {this.state.user}/>
+    )
   }
   render(){
     return (
@@ -47,6 +101,27 @@ class Life extends Component {
            生活社区
           </Text>
         </View>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this._renderRow.bind(this)}
+          enableEmptySections={true}
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustContentInsets ={false}
+          onEndReachedThreshold={40}
+          onEndReached = {this._fetchMoreData.bind(this)}
+          refreshControl={
+            <RefreshControl 
+              refreshing={this.state.isRefreshing}
+              onRefresh={this._onRefresh.bind(this)}
+              tintColor="#ff6600"
+              title='拼命加载中...'
+              progressBackgroundColor="#fff"
+              colors={["#ff6600"]}
+            />
+          }
+          //dp
+          renderFooter = {this._renderFooter.bind(this)}
+        />
       </View>
       )
   }

@@ -16,6 +16,9 @@ request.get = function(url,param){
 	return fetch(url)
 		.then(response => response.json())
 		.then(responseJson => responseJson)
+		.catch((error) => {
+	      console.error(error);
+	    });
 }
 
 request.post = function(url , body){
@@ -26,6 +29,9 @@ request.post = function(url , body){
 	return fetch(url,options)
 		.then(response => response.json())
 		.then(responseJson => responseJson)
+		.catch((error) => {
+      console.error(error);
+    });
 }
  
 module.exports = request
