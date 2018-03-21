@@ -23,11 +23,13 @@ import Mine from './app/mine/index.js';
 import Life from './app/life/index.js'
 import Login from './app/mine/login.js';
 import PlusArticle from './app/life/plusArticle.js'
+import ArticleDetail from './app/life/detail.js'
 
 const Second = StackNavigator({
   Life:{screen:Life},
-  PlusArticle:{screen:PlusArticle}
-},
+  PlusArticle:{screen:PlusArticle},
+  ArticleDetail:{screen:ArticleDetail}
+  },
   {
    headerMode: 'none',
    mode: 'modal',
@@ -37,6 +39,18 @@ const Second = StackNavigator({
    }
  })
 
+const AllMine = StackNavigator({
+  Mine:{screen:Mine},
+  Login:{screen:Login}
+  },
+  {
+   headerMode: 'none',
+   mode: 'modal',
+   navigationOptions: {
+     gesturesEnabled: false,
+     initialRouteName:Mine,
+   }
+ })
 const RootTabs = TabNavigator({
   Root: {
     screen: Root,
@@ -74,17 +88,17 @@ const RootTabs = TabNavigator({
         />
       )}
   },
-  Mine: {
-    screen: Mine,
-    navigationOptions: {
+  AllMine: {
+    screen: AllMine,
+    navigationOptions: ({navigation})=>({
       tabBarLabel:'我的',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
           name={focused ? 'ios-person' : 'ios-person-outline'}
           size={22}
-          style={{ color: tintColor  }}
+          style={{ color: tintColor }}
         />
-      )},
+      )})
   }
 },{
   tabBarPosition: 'bottom',
@@ -111,8 +125,7 @@ const RootTabs = TabNavigator({
     }
 
   }
-}
-)
+})
 export default class FoodSay extends Component {
   constructor(props) {
     super(props)
@@ -160,18 +173,24 @@ export default class FoodSay extends Component {
     })
   }
   _logout(){
-    
+    AsyncStorage.removeItem('user')
+    .then(()=>{
+      this.setState({
+        logined:false,
+        user:null
+      })
+    })
   }
 
   render() {
-    // if(!this.state.logined){
-    //   return <Login afterLogin ={this._afterLogin.bind(this)}/>
-    // }
+    if(!this.state.logined){
+      return <Login afterLogin ={this._afterLogin.bind(this)}/>
+    }
    // if(this.state.logined){
    //    return <Mine user={this.state.user} logout={this._logout.bind(this)}/>
    //  } 
     return (
-        <RootTabs />
+        <RootTabs/>
     );
   }
 }

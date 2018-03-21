@@ -15,7 +15,7 @@ module.exports = {
 		base1:'http://rap2api.taobao.org/app/mock/2009/GET/',
 		base2:'http://rap2api.taobao.org/app/mock/2009/POST/',
 		//base1:'http://localhost:1234/',
-		base3:'http://10.43.169.52:1234/',
+		base3:'http://localhost:1234/',
 		list:'api/creations/list',
 		commentlist:'api/detail/commentslist',
 		comment:'api/detail/comments',
@@ -27,6 +27,7 @@ module.exports = {
 		login:'api/u/login',
 		regist:'api/u/regist',
 		video:'api/creations/video',
-		userDetail:'api/creations/userDetail'
+		
+		articlelist:'api/article/list'
 	}
 }

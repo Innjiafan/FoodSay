@@ -17,39 +17,61 @@ import {
   ListView,
   RefreshControl,
   TouchableHighlight,
-  Image
+  Image,
+  ActivityIndicator
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button'
 import PlusArticle from './plusArticle.js'
 
+import request from './../common/request.js';
+import config  from './../common/config.js';
+import ArticleDetail from './detail.js'
 let width = Dimensions.get('window').width;
-
+//缓存列表所有数据
+let cachedResults = {
+  nextPage: 1,
+  items: [],
+  total:0
+};
 class Item extends Component{
 
   constructor(props) {
     super(props);
-    let row = this.props.row;
+    let row = this.props.row
     let user = this.props.user||{}
     this.state = {
       user:user,
-      row: row
+      row: row,
+      isRefreshing:false,
+      isLoadingTail:false
     };
   }
   render(){
     let row = this.state.row;
-    //console.log(row);
     return(
         <View style = {styles.item}>
-          <Text style = {styles.title}>{}</Text>
-          <TouchableHighlight  onPress={() => this.props.navigation.navigate('Detail',{data:row})}>
+          <TouchableHighlight  onPress={() => this.props.navigation.navigate('ArticleDetail',{data:row})}>
           <Image
            style={styles.thumb}
-           source={{uri: row}}
+           source={{uri: row.articlethumb}}
           >
           </Image>
           </TouchableHighlight>
+          <View style={styles.itembottom}>
+              <Text style = {styles.title}>{row.title}</Text>
+              <View style={styles.itemauthor}>
+                <Image
+                 style={styles.avatarthumb}
+                 source={{uri: row.author.avatar}}
+                >
+                </Image>
+                <View style={styles.namebox}>
+                  <Text style={styles.authorname}>{row.author.nickname}</Text>
+                </View>
+              </View>
+          </View>
         </View>
 
     )
@@ -65,6 +87,7 @@ class Life extends Component {
       user:user, 
       isRefreshing:false,
       dataSource:ds.cloneWithRows([
+            
         ]),
     }
   }
@@ -72,23 +95,126 @@ class Life extends Component {
   _plusArticle(){
     this.props.navigation.navigate('PlusArticle')
   }
-  _renderRow(){
-
-  }
-  _fetchMoreData(){
-
-  }
-  _onRefresh(){
-
-  }
-  _renderFooter(){
+  _renderRow(row){
     return(
       //jsx
-     <Item navigation = {this.props.navigation} user = {this.state.user}/>
+     <Item row={row} navigation = {this.props.navigation} user = {this.state.user}/>
     )
   }
+  componentDidMount(){
+      this._fetchData(1)
+  }
+
+  _fetchData(page) {
+    let that = this;
+    // return fetch('http://rap2api.taobao.org/app/mock/data/7150')
+    if(page !== 0){
+      this.setState({
+        isLoadingTail:true
+      })
+    }else{
+     
+      this.setState({
+        isRefreshing:true
+      })
+    }
+      request.get(config.api.base1+config.api.articlelist,{
+        page:page
+      }) 
+      .then(data => {
+          console.log(data)
+         if(data.success){
+          let items = cachedResults.items.slice();
+          
+          if(page !== 0){
+            items = items.concat(data.data)
+            cachedResults.nextPage += 1
+          }else{
+            items = data.data.concat(items)
+          }
+
+          cachedResults.items = items ;
+          cachedResults.total = data.total;
+
+          setTimeout(function(){
+            if(page !== 0){
+              that.setState({
+                isLoadingTail:false,
+                dataSource: that.state.dataSource.cloneWithRows(
+                cachedResults.items)
+              })
+            }else{
+              that.setState({
+                isRefreshing:false,
+                dataSource: that.state.dataSource.cloneWithRows(
+                cachedResults.items)
+              })
+            }
+              
+          },2000)
+         };
+      })
+      .catch(error => {
+        if(page !==0 ){
+        this.setState({
+              isLoadingTail:false
+          });
+      }else{
+        this.setState({
+          isRefreshing:false
+        })
+      }
+       console.error(error);
+      })
+  }
+//判断是否有更多数据
+  _hasMore(){
+    return cachedResults.items.length !== cachedResults.total;
+  }
+
+  _fetchMoreData(){
+    if(!this._hasMore() || this.state.isLoadingTail){
+      return;
+    };
+
+    let page = cachedResults.nextPage;
+
+    this._fetchData(page);
+  }
+
+   _onRefresh(){
+    // Alert.alert('触发了1')
+    if(!this._hasMore() || this.state.isRefreshing){
+      Alert.alert('没有最新数据')
+      return 
+    }
+    Alert.alert('触发了')
+    this._fetchData(0)
+  }
+  //底部下拉数据提示信息
+  _renderFooter(){
+      if(!this._hasMore()&&cachedResults.total !== 0){
+        return(
+          <View style = {styles.loadingMore}>
+            <Text style = {styles.loadingText}>没有更多了</Text>
+          </View>
+        );
+
+      };
+
+      if(!this.state.isLoadingTail){
+        return <View></View>
+      }
+      return (
+        <ActivityIndicator
+          animating={this.state.animating}
+          style={[styles.loadingMore, {height: 20}]}
+          size="small"
+        />
+      );
+  }
   render(){
-    return (
+    return(
       <View style = {styles.container} >
         <View style={styles.toolbar}>
            <Icon
@@ -135,7 +261,7 @@ const styles = StyleSheet.create({
   },
   toolbar:{
     marginTop:Platform.OS === 'ios'?20:0,
-    paddingBottom: 8,
+    paddingBottom: Platform.OS === 'ios'?0:8,
     // paddingTop: 8,
     backgroundColor: '#ee735c',
     flexDirection:'row',
@@ -157,7 +283,60 @@ const styles = StyleSheet.create({
     // top:0,
     // left:0
   },
+  item:{
+    width:width,
+    borderBottomWidth:1,
+    borderColor:'#eee',
+    backgroundColor: '#fff',
+  },
 
+  thumb:{
+    width:width,
+    height:width*0.56,
+    resizeMode:'cover'
+  },
+  itembottom:{
+    width:width,
+    backgroundColor:'#fff',
+    flexDirection:'row',
+    padding: 10,
+    position:'relative',
+    height:width*.22
+    //alignItems:'flex-start'
+  },
+  itemauthor:{
+    backgroundColor:'#fff',
+    flexDirection:'column',
+    position:'absolute',
+    top:8,
+    right:10,
+    alignItems:'flex-end'
+  },
+  avatarthumb:{
+    width:width*.14,
+    height:width*.14,
+    resizeMode:'cover',
+    borderRadius:width*0.07,
+    borderWidth:1,
+    borderColor:'#fff'
+  },
+  authorname:{
+    fontSize: 12,
+    color:'#333'
+  },
+  title:{
+    width:width*.4,
+    fontSize: 18,
+    color:'#333',
+  }, 
+  loadingMore:{
+    marginVertical:20
+  },
+
+  loadingText:{
+    color:'#777',
+    textAlign: 'center',
+  },
 })
 
 module.exports = Life

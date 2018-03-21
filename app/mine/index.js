@@ -289,17 +289,7 @@ class Mine extends Component {
   }
 
   _logout(){
-    let that = this
-    // console.log(this.props.navigation)
-    // AsyncStorage.removeItem('user')
-    // .then(()=>{
-    //   that.setState({
-    //     logined:false,
-    //     // user:null
-    //   })
-    // })
-    //this.props.navigation.goBack()
-    
+
   }
 
   _changeUserState(key,value){
@@ -308,7 +298,6 @@ class Mine extends Component {
     this.setState({
       user:user
     })
-    //console.log(user)
   }
 
 
@@ -473,7 +462,8 @@ class Mine extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor:'#fff'
   },
 
   toolbar:{
