@@ -55,7 +55,7 @@ class Item extends Component{
           <TouchableHighlight  onPress={() => this.props.navigation.navigate('ArticleDetail',{data:row})}>
           <Image
            style={styles.thumb}
-           source={{uri: row.articlethumb}}
+           source={{uri: 'http://p3kjn8fdy.bkt.clouddn.com/'+row.articlethumb}}
           >
           </Image>
           </TouchableHighlight>
@@ -64,7 +64,7 @@ class Item extends Component{
               <View style={styles.itemauthor}>
                 <Image
                  style={styles.avatarthumb}
-                 source={{uri: row.author.avatar}}
+                 source={{uri: 'http://p3kjn8fdy.bkt.clouddn.com/'+row.author.avatar}}
                 >
                 </Image>
                 <View style={styles.namebox}>
@@ -86,6 +86,7 @@ class Life extends Component {
     this.state = {
       user:user, 
       isRefreshing:false,
+      searchtext:null,
       dataSource:ds.cloneWithRows([
             
         ]),
@@ -118,7 +119,7 @@ class Life extends Component {
         isRefreshing:true
       })
     }
-      request.get(config.api.base1+config.api.articlelist,{
+      request.get(config.api.base3+config.api.articlelist,{
         page:page
       }) 
       .then(data => {
@@ -213,6 +214,10 @@ class Life extends Component {
         />
       );
   }
+
+  _searchSubmit(){
+    
+  }
   render(){
     return(
       <View style = {styles.container} >
@@ -226,6 +231,21 @@ class Life extends Component {
           <Text style={styles.toolbarTitle}>
            生活社区
           </Text>
+        </View>
+        <View style={styles.searchBox}>
+          <TextInput
+            placeholder={'搜索你喜欢的内容'}
+            style={styles.searchField}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            underlineColorAndroid={'transparent'}
+            onChangeText={(text)=>{
+              this.setState({
+                searchtext:text
+              })
+            }}
+          />
+          <Button style={styles.searchbtn} onPress={this._searchSubmit.bind(this)}>搜索</Button>
         </View>
         <ListView
           dataSource={this.state.dataSource}
@@ -282,6 +302,34 @@ const styles = StyleSheet.create({
     // position:'absolute',
     // top:0,
     // left:0
+  },
+  //
+  searchBox:{
+    backgroundColor:'#fff',
+    flexDirection:'row',
+    justifyContent:'center'
+  },
+  searchField:{
+    width:width*.8,
+    height:40,
+    color:'#666',
+    fontSize:14,
+    borderRadius:0.3,
+    borderWidth:0.6,
+    borderColor:'#eee',
+    backgroundColor:'#eee',
+    opacity:0.4,
+    marginLeft:6,
+  },
+  searchbtn:{
+    width:width*.2,
+    height:40,
+    padding:10,
+    borderRadius:0.3,
+    borderWidth:0.6,
+    borderColor:'#eee',
+    color:'#ee735c',
+    fontSize:14
   },
   item:{
     width:width,

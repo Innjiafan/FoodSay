@@ -328,7 +328,7 @@ _fetchData(page) {
             content:that.state.content,
             replyBy:{
               nickname:data.data.nickname,
-              avatar:'http://p3kjn8fdy.bkt.clouddn.com/'+data.data.avatar
+              avatar:data.data.avatar
             }
           }].concat(items)
         //  console.log(items);

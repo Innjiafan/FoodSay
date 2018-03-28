@@ -49,7 +49,7 @@ class ArticleDetail extends Component {
       <View>
         <Text style={styles.steptext}>步骤{item.index+1}</Text>
         <Image style={styles.stepthumb}
-          source={{uri:item.item.Image1}}
+          source={{uri:'http://p3kjn8fdy.bkt.clouddn.com/'+item.item.Image1}}
         ></Image>
         <Text style={styles.stepdesc}>{item.item.desc1}</Text>
       </View>
@@ -71,7 +71,7 @@ class ArticleDetail extends Component {
           <View style={styles.main}>
             <Image
              style={styles.thumb}
-             source={{uri: data.articlethumb}}
+             source={{uri: 'http://p3kjn8fdy.bkt.clouddn.com/'+data.articlethumb}}
             >
             </Image>
             <Text style={styles.title}>{data.title}</Text>
@@ -79,7 +79,7 @@ class ArticleDetail extends Component {
               <View style={styles.authorbox}>
                 <Image
                  style={styles.authoravatar}
-                 source={{uri: data.author.avatar}}
+                 source={{uri: 'http://p3kjn8fdy.bkt.clouddn.com/'+data.author.avatar}}
                 >
                 </Image>
                 <View>

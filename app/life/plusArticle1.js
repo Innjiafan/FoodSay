@@ -16,8 +16,7 @@ import {
   Platform,
   TouchableOpacity,
   ScrollView,
-  Image,
-  AsyncStorage
+  Image
 } from 'react-native';
 
 import * as Progress from 'react-native-progress'
@@ -48,65 +47,13 @@ let photoOptions = {
   }
 }
 
-class PLusArticle extends Component {
-
+class Item extends Component {
   constructor(props) {
     super(props)
     let user = this.props.user||{}
     this.state = { 
-      user:user,
-      addotherstep:false,
-      photoProgress:0,
-      photoUploading:false,
-      animationType:'fade',
-      modalVisible:false,
-
-      title:null,
-      articlethumb:null,
-      desc:null,
-      stepImage:[],
     }
   }
-  //组件加载完成
-  componentDidMount(){
-    let that = this
-    AsyncStorage.getItem('user')
-    .then((data)=>{
-      let user
-      if(data){
-        user = JSON.parse(data)
-        //console.log(user)
-      }
-      if(user && user.accessToken){
-        that.setState({
-          user:user
-        })
-      }
-    })
-  }
-  //增加其他步骤
-  _otherStep(){
-    Alert.alert('增加步骤')
-    this.setState({
-      addotherstep:true
-    })
-  }
-
-    //上传图床
-  _getQiniuToken(){
-    let accessToken = this.state.user.accessToken
-    let signatureURL=config.api.base3 + config.api.signature
-    //console.log(signatureURL)
-    return request.post(signatureURL,{
-        accessToken:accessToken,
-        cloud:'qiniu',
-        type:'avatar'
-      })
-      .catch((err)=>{
-        console.log(err)
-      }) 
-  }
-
   //从相册中获取图片
   _pickPhoto(type){
     let that = this
@@ -138,6 +85,22 @@ class PLusArticle extends Component {
           }
         })
     })
+  }
+
+
+    //上传图床
+  _getQiniuToken(){
+    let accessToken = this.state.user.accessToken
+    let signatureURL=config.api.base3 + config.api.signature
+    //console.log(signatureURL)
+    return request.post(signatureURL,{
+        accessToken:accessToken,
+        cloud:'qiniu',
+        type:'avatar'
+      })
+      .catch((err)=>{
+        console.log(err)
+      }) 
   }
 
   _upload(body,type){
@@ -216,39 +179,96 @@ class PLusArticle extends Component {
     xhr.send(body)
   }
 
+  render(){
+    return (
+      <View>
+            <Text style={styles.dishPrac}>步骤1</Text>
+            {
+            this.state.stepImage.length != 0
+            ?<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}> 
+              <View style={styles.dishThumb}>
+                <View  style={styles.photoContainer}>
+                  <View style={styles.photoBox}>
+                    {this.state.photoUploading
+                    ?<Progress.Bar
+                    showsText={true}
+                    color={'#ee735c'}
+                    progress={this.state.photoProgress}
+                    width={width}
+                    height={4}
+                    />
+                    :<Image
+                      source={{uri:articlephoto(this.state.stepImage[0].Image1,'image')}}
+                      style={styles.photo}
+                    />
+                    }
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+            :<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}>
+              <View style={styles.dishThumb}> 
+                <View style={styles.photoBox}>
+                  {this.state.photoUploading
+                  ?<Progress.Bar 
+                  showsText={true}
+                  color={'#ee735c'}
+                  progress={this.state.photoProgress}
+                  width={width}
+                  height={4} />
+                  :<Text style={styles.dishTitle}>+步骤图</Text>
+                  }
+                </View>
+              </View>
+            </TouchableOpacity>
+          }
+              <TextInput
+              placeholder={'添加步骤说明'}
+              autoCapitalize={'none'}
+              autoCorrect={false}
+              multiline={true}
+              underlineColorAndroid='transparent'
+              style={styles.inputField}
+              onChangeText={(text)=>{
+                    this.state.stepImage[0].desc1 = text
+                  }}
+            />
+          </View>
+    )
+  }
+}
+  
+
+class PLusArticle extends Component {
+
+  constructor(props) {
+    super(props)
+    let user = this.props.user||{}
+    this.state = { 
+      user:user,
+      addotherstep:false,
+      photoProgress:0,
+      photoUploading:false,
+      animationType:'fade',
+      modalVisible:false,
+
+      title:null,
+      articlethumb:null,
+      desc:null,
+      stepImage:[],
+    }
+  }
+  //增加其他步骤
+  _otherStep(){
+    Alert.alert('增加步骤')
+    this.setState({
+      addotherstep:true
+    })
+  }
+
   //发布这篇文章
   _submit(){
-    let that = this
-    let url = config.api.base3+config.api.addArticle
-    let body = {
-      title:this.state.title,
-      articlethumb:this.state.articlethumb,
-      desc:this.state.desc,
-      stepImage:this.state.stepImage,
-      author:this.state.user.accessToken
-    };
-
-    console.log(body)
-
-    request.post(url,body)
-      .then(function(data){
-        if(data && data.success){ 
-          Alert.alert('发表文章成功')
-          that.setState({
-            title:null,
-            articlethumb:null,
-            desc:null,
-            stepImage:[],
-          })         
-        }else{  
-          Alert.alert('发表文章失败，稍后重试');
-        }
-      })
-      .catch(function(err){
-        console.log(err);
-        Alert.alert('发表文章失败，稍后重试');
-      })
-
+    Alert.alert('发布文章')
   }
   render(){
     let that = this
@@ -330,175 +350,14 @@ class PLusArticle extends Component {
             }}
           />
           <Text style={styles.dishPrac}>做法</Text>
-          <View>
-            <Text style={styles.dishPrac}>步骤1</Text>
-            {
-            this.state.stepImage.length != 0
-            ?<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}> 
-              <View style={styles.dishThumb}>
-                <View  style={styles.photoContainer}>
-                  <View style={styles.photoBox}>
-                    {this.state.photoUploading
-                    ?<Progress.Bar
-                    showsText={true}
-                    color={'#ee735c'}
-                    progress={this.state.photoProgress}
-                    width={width}
-                    height={4}
-                    />
-                    :<Image
-                      source={{uri:articlephoto(this.state.stepImage[0].Image1,'image')}}
-                      style={styles.photo}
-                    />
-                    }
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-            :<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}>
-              <View style={styles.dishThumb}> 
-                <View style={styles.photoBox}>
-                  {this.state.photoUploading
-                  ?<Progress.Bar 
-                  showsText={true}
-                  color={'#ee735c'}
-                  progress={this.state.photoProgress}
-                  width={width}
-                  height={4} />
-                  :<Text style={styles.dishTitle}>+步骤图</Text>
-                  }
-                </View>
-              </View>
-            </TouchableOpacity>
-          }
-              <TextInput
-              placeholder={'添加步骤说明'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              multiline={true}
-              underlineColorAndroid='transparent'
-              style={styles.inputField}
-              onChangeText={(text)=>{
-                    this.state.stepImage[0].desc1 = text
-                  }}
-            />
-          </View>
-          <View>
-            <Text style={styles.dishPrac}>步骤2</Text>
-            {
-              this.state.stepImage.length == 2 || this.state.stepImage.length == 3||this.state.stepImage.length == 4 
-              ?<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}> 
-                <View style={styles.dishThumb}>
-                  <View style={styles.photoContainer}>
-                    <View style={styles.photoBox}>
-                      {this.state.photoUploading
-                      ?<Progress.Bar
-                      showsText={true}
-                      color={'#ee735c'}
-                      progress={this.state.photoProgress}
-                      width={width}
-                      height={4}
-                      />
-                      :<Image
-                        source={{uri:articlephoto(this.state.stepImage[1].Image1,'image')}}
-                        style={styles.photo}
-                      />
-                      }
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-              :<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}>
-                <View style={styles.dishThumb}> 
-                  <View style={styles.photoBox}>
-                    {this.state.photoUploading
-                    ?<Progress.Bar 
-                    showsText={true}
-                    color={'#ee735c'}
-                    progress={this.state.photoProgress}
-                    width={width}
-                    height={4} />
-                    :<Text style={styles.dishTitle}>+步骤图</Text>
-                    }
-                  </View>
-                </View>
-              </TouchableOpacity>
-            }
-              <TextInput
-              placeholder='添加步骤说明'
-              autoCaptialize={'none'}
-              autoCorrect={false}
-              multiline={true}
-              underlineColorAndroid='transparent'
-              keyboardType={'numeric'}
-              style={styles.inputField}
-              onChangeText={(text)=>{
-                  this.state.stepImage[1].desc1 = text
-              }}
-            />
-          </View>
-          <View>
-              <Text style={styles.dishPrac}>步骤3</Text>
-              {
-                this.state.stepImage.length == 3||this.state.stepImage.length == 4 
-                ?<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}> 
-                  <View style={styles.dishThumb}>
-                    <View  style={styles.photoContainer}>
-                      <View style={styles.photoBox}>
-                        {this.state.photoUploading
-                        ?<Progress.Bar
-                        showsText={true}
-                        color={'#ee735c'}
-                        progress={this.state.photoProgress}
-                        width={width}
-                        height={4}
-                        />
-                        :<Image
-                          source={{uri:articlephoto(this.state.stepImage[2].Image1,'image')}}
-                          style={styles.photo}
-                        />
-                        }
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                :<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}>
-                  <View style={styles.dishThumb}> 
-                    <View style={styles.photoBox}>
-                      {this.state.photoUploading
-                      ?<Progress.Bar 
-                      showsText={true}
-                      color={'#ee735c'}
-                      progress={this.state.photoProgress}
-                      width={width}
-                      height={4} />
-                      :<Text style={styles.dishTitle}>+步骤图</Text>
-                      }
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              }
-                <TextInput
-                placeholder='添加步骤说明'
-                autoCaptialize={'none'}
-                autoCorrect={false}
-                multiline={true}
-                underlineColorAndroid='transparent'
-                keyboardType={'numeric'}
-                style={styles.inputField}
-                onChangeText={(text)=>{
-                    this.state.stepImage[2].desc1 = text
-                    console.log(this.state.stepImage)
-                }}
-              />
-          </View>
+          
           {
             this.state.addotherstep
             ?
             <View>
               <Text style={styles.dishPrac}>步骤4</Text>
               {
-                this.state.stepImage.length == 4 
+                this.state.stepImage.length == 4
                 ?<TouchableOpacity onPress={this._pickPhoto.bind(this,'stepthumb')} style={styles.photoContainer}> 
                   <View style={styles.dishThumb}>
                     <Image source={{uri:articlephoto(this.state.stepImage[3].Image1,'image')}} style={styles.photoContainer}>
@@ -546,7 +405,6 @@ class PLusArticle extends Component {
                 style={styles.inputField}
                 onChangeText={(text)=>{
                     this.state.stepImage[3].desc1 = text
-                    console.log(this.state.stepImage)
                 }}
               />
             </View>

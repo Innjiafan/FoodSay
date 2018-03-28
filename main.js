@@ -18,7 +18,7 @@ import { TabNavigator ,StackNavigator} from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Root from './app/list/index.js';
-import Edit from './app/video/index.js';
+import Message from './app/message/index.js';
 import Mine from './app/mine/index.js';
 import Life from './app/life/index.js'
 import Login from './app/mine/login.js';
@@ -76,13 +76,13 @@ const RootTabs = TabNavigator({
         />
       )}
   },
-  Edit: {
-    screen: Edit,
+  Message: {
+    screen: Message,
     navigationOptions: {
-      tabBarLabel:'视频',
+      tabBarLabel:'信箱',
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
-          name={focused ? 'ios-videocam' : 'ios-videocam-outline'}
+          name={focused ? 'ios-book' : 'ios-book-outline'}
           size={22}
           style={{ color: tintColor }}
         />

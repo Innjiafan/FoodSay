@@ -18,6 +18,7 @@ import {
   TextInput
 } from 'react-native';
 
+import Button from 'react-native-button'
 import * as Progress from 'react-native-progress'
 import Icon from 'react-native-vector-icons/Ionicons';
 let Video = require('react-native-video').default;
@@ -42,7 +43,7 @@ let videoOptions = {
     path: 'images'
   }
 }
-class Edit extends Component {
+class PlusVideo extends Component {
 
   constructor(props) {
     super(props)
@@ -57,6 +58,8 @@ class Edit extends Component {
       videoUploaded:false,
       videoUploading:false,
       videoUploadedProgress:0.01,
+
+      body:null,
       
       //video player
       rate:1.0,
@@ -198,13 +201,18 @@ class Edit extends Component {
             name:key
           })
 
+          that.setState({
+            body:body
+          })
           console.log(body)
-          that._upload(body)
           }
         })
       })
   }
 
+  _submit(body){
+    this._upload(body)
+  }
   _upload(body){
     let that = this
     let xhr = new XMLHttpRequest()
@@ -265,6 +273,14 @@ class Edit extends Component {
 
           if(data.success){
             Alert.alert(data.msg)
+            that.setState({
+                previewVideo:null,
+                title:null,
+                video:null,
+                videoUploaded:false,
+                videoUploading:false,
+                videoUploadedProgress:0.01,
+            })
           }
         })
       }
@@ -292,18 +308,18 @@ class Edit extends Component {
   render(){
     return (
       <View style = {styles.container} >
-        <View style={styles.toolbar}>
-          <Text style={styles.toolbarTitle}>
-           上传页面
-          </Text>
-            {
-              this.state.previewVideo && this.state.videoUploaded
+          <View style={styles.header}>
+          <TouchableOpacity style={styles.popBox} onPress={()=>{this.props.navigation.goBack()}}>
+            <Icon name='ios-arrow-back' style={styles.backIcon} />
+            <Text style={styles.backText}>返回</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} numberOflines ={1} >创建视频</Text>
+          {
+              this.state.previewVideo
               ?<Text style={styles.toolbarExtra} onPress={this._pickVideo.bind(this)}>更换视频</Text>
               :null
-            }
-
+          }
         </View>
-
         <View style={styles.page}>
            <View style={styles.fieldItem}>
                 <Text style={styles.label}>标题</Text>
@@ -353,6 +369,11 @@ class Edit extends Component {
                    
                     }
                 </View>
+                <View style={styles.addVideo}>
+                    <Button
+                      style={styles.addVideobtn}
+                      onPress={this._submit.bind(this,this.state.body)}>发布视频</Button>
+                </View>
               </View>
             : <TouchableOpacity style={styles.uploadContainer} onPress={this._pickVideo.bind(this)}>
               <View style={styles.uploadBox}>
@@ -369,30 +390,50 @@ class Edit extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor:'#fff'
   },
-  toolbar:{
+  header:{
+    marginTop:Platform.OS === 'ios'?0:0,
     flexDirection:'row',
-    marginTop:Platform.OS === 'ios'?20:0,
+    justifyContent:'center',
+    alignItems:'center',
+    width:width,
+    height:40,
     paddingBottom: 8,
     paddingTop: 8,
-    backgroundColor: '#ee735c',
+    paddingLeft:10,
+    paddingRight:10,
+    borderBottomWidth:1,
+    borderColor:'rgba(0,0,0,0.1)',
+    backgroundColor: '#fff',
   },
-  toolbarTitle:{
-    flex:1,
-    fontSize:16,
-    color:'#fff',
-    textAlign:'center',
-    fontWeight:'600'
+
+  popBox:{
+    position:'absolute',
+    left:12,
+    top:10,
+    width:50,
+    flexDirection:'row',
+    alignItems:'center'
+  },
+  headerTitle:{
+    width:width-120,
+    textAlign:'center'
+  },
+  backIcon:{
+    color:'#999',
+    fontSize:20,
+    marginRight:5
+  },
+  backText:{
+    color:'#999'
   },
   toolbarExtra:{
+    color:'#ee735c',
+    fontSize:12,
     position:'absolute',
-    right:10,
-    top:Platform.OS === 'ios'?30:10,
-    color:'#fff',
-    textAlign:'right',
-    fontWeight:'600',
-    fontSize:14
+    right:4
   },
   page:{
     flex:1,
@@ -474,7 +515,22 @@ const styles = StyleSheet.create({
     color:'#333',
     width:width-10,
     padding:5
+  },
+
+  addVideo:{
+    marginTop:40,
+    width:width
+  },
+  addVideobtn:{
+    padding:10,
+    borderWidth:0.6,
+    borderColor:'#ee735c',
+    borderRadius:0.3,
+    color:'#ee735c',
+    fontSize:16,
+    textAlign: 'center',
+    fontWeight:'400'
   }
 });
 
-module.exports = Edit;
+module.exports = PlusVideo;

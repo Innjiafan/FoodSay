@@ -14,17 +14,17 @@ import {
   StatusBar,
   RefreshControl,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,TextInput
 } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import Button from 'react-native-button'
 
 import request from './../common/request.js';
 import config  from './../common/config.js';
 import Detail from './detail.js'
-
+import PlusVideo from './plusVideo.js'
 
 let width = Dimensions.get('window').width;
 
@@ -34,7 +34,6 @@ let cachedResults = {
   items: [],
   total:0
 };
-
 class Item extends Component{
 
   constructor(props) {
@@ -129,7 +128,8 @@ class List extends Component {
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     let user = this.props.user||{}
     this.state = {
-      user:user, 
+      user:user,
+      searchtext:null,
       isLoadingTail: false,
       dataSource: ds.cloneWithRows([
         ]),
@@ -159,6 +159,7 @@ class List extends Component {
   }
 
   _fetchData(page) {
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
     let that = this;
     // return fetch('http://rap2api.taobao.org/app/mock/data/7150')
     if(page !== 0){
@@ -171,15 +172,14 @@ class List extends Component {
         isRefreshing:true
       })
     }
-      let body = {
-        total:cachedResults.items.length,
-        page:page
-      }
-      request.post(config.api.base3+config.api.list,body) 
+      request.get(config.api.base3+config.api.list,{
+          page:page,
+          len:cachedResults.items.length
+      })
       .then(data => {
          // console.log(responseJson.success);
         // console.log(this.state.dataSource);
-          console.log(data)
+          //console.log(data)
          if(data.success){
           let items = cachedResults.items.slice();
           
@@ -187,6 +187,11 @@ class List extends Component {
             items = items.concat(data.data)
             cachedResults.nextPage += 1
           }else{
+            //console.log(data.data)
+            //tems = items.concat(data.data)
+            that.setState({
+              dataSource:ds.cloneWithRows([])
+            })
             items = data.data.concat(items)
           }
 
@@ -226,8 +231,6 @@ class List extends Component {
   }
   //判断是否有更多数据
   _hasMore(){
-    // console.log('缓存数剧长度'+cachedResults.items.length)
-    // console.log('数据库数剧长度'+cachedResults.total)
     return cachedResults.items.length !== cachedResults.total;
   }
 
@@ -247,12 +250,12 @@ class List extends Component {
       Alert.alert('没有最新数据')
       return 
     }
-    Alert.alert('触发了')
+    //Alert.alert('触发了')
     this._fetchData(0)
   }
   //底部下拉数据提示信息
   _renderFooter(){
-      if(!this._hasMore()&&cachedResults.total !== 0){
+      if(!this._hasMore()&&cachedResults.total !== 0&&this.state.isRefreshing==false){
         return(
           <View style = {styles.loadingMore}>
             <Text style = {styles.loadingText}>没有更多了</Text>
@@ -267,7 +270,7 @@ class List extends Component {
       return (
         <ActivityIndicator
           animating={this.state.animating}
-          style={[styles.loadingMore, {height: 20}]}
+          style={[styles.loadingMore, {height: 26}]}
           size="small"
         />
       );
@@ -281,11 +284,64 @@ class List extends Component {
     )
   }
 
+  //按条件查询
+  _searchSubmit(){
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    let that = this
+    this.setState({
+        isRefreshing:true,
+        dataSource:ds.cloneWithRows([])
+    })
+    let searchtext = this.state.searchtext
+    request.get(config.api.base3+config.api.searchVideo,{
+      searchtext:searchtext
+    })
+    .then(data => {
+       if(data.success){
+        setTimeout(()=>{
+           that.setState({
+              isRefreshing:false,
+              dataSource: that.state.dataSource.cloneWithRows(
+              data.data)
+            })   
+        },2000)
+            
+        }
+      })
+      .catch(error => {
+        that.setState({
+          isRefreshing:false
+        })
+        console.error(error);
+      })
+
+  }
   render(){
      return (
       <View style = {styles.container} >
         <View style = {styles.header}>
+          <Icon
+              name = 'ios-add'
+              size = {30}
+              style = {styles.plusVideo}
+              onPress={()=>{this.props.navigation.navigate('PlusVideo')}}
+          />
           <Text style = {styles.headerTitle}>列表页面</Text>
+        </View>
+        <View style={styles.searchBox}>
+          <TextInput
+            placeholder={'搜索你喜欢的内容'}
+            style={styles.searchField}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            underlineColorAndroid={'transparent'}
+            onChangeText={(text)=>{
+              this.setState({
+                searchtext:text
+              })
+            }}
+          />
+          <Button style={styles.searchbtn} onPress={this._searchSubmit.bind(this)}>搜索</Button>
         </View>
         <ListView
           dataSource={this.state.dataSource}
@@ -294,6 +350,7 @@ class List extends Component {
           showsVerticalScrollIndicator={false}
           automaticallyAdjustContentInsets ={false}
           onEndReachedThreshold={40}
+          removeClippedSubviews={false}
           onEndReached = {this._fetchMoreData.bind(this)}
           refreshControl={
             <RefreshControl 
@@ -319,6 +376,9 @@ const Root = StackNavigator({
   Detail: {
     screen: Detail,
   },
+  PlusVideo:{
+    screen:PlusVideo,
+  }
 },
 {
    headerMode: 'none',
@@ -343,6 +403,11 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     //position:'relative'
   },
+   plusVideo:{
+    color:'#fff',
+    marginLeft:8,
+    marginTop:4
+  },
   headerTitle: {
     color:'#fff',
     fontSize: 16,
@@ -350,6 +415,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop:8,
     marginLeft:width/2-60,
+  },
+
+  //
+  searchBox:{
+    backgroundColor:'#fff',
+    flexDirection:'row',
+    justifyContent:'center'
+  },
+  searchField:{
+    width:width*.8,
+    height:40,
+    color:'#666',
+    fontSize:14,
+    borderRadius:0.3,
+    borderWidth:0.6,
+    borderColor:'#eee',
+    backgroundColor:'#eee',
+    opacity:0.4,
+    marginLeft:6,
+  },
+  searchbtn:{
+    width:width*.2,
+    height:40,
+    padding:10,
+    borderRadius:0.3,
+    borderWidth:0.6,
+    borderColor:'#eee',
+    color:'#ee735c',
+    fontSize:14
   },
   item:{
     width:width,
