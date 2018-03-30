@@ -11,7 +11,9 @@ import {
   Text,
   View,
   Platform,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator,
+  Dimensions
 } from 'react-native';
 
 import { TabNavigator ,StackNavigator} from 'react-navigation';
@@ -22,9 +24,12 @@ import Message from './app/message/index.js';
 import Mine from './app/mine/index.js';
 import Life from './app/life/index.js'
 import Login from './app/mine/login.js';
+import Slider from './app/mine/slider.js';
 import PlusArticle from './app/life/plusArticle.js'
 import ArticleDetail from './app/life/detail.js'
 
+let width = Dimensions.get('window').width
+let height = Dimensions.get('window').height
 const Second = StackNavigator({
   Life:{screen:Life},
   PlusArticle:{screen:PlusArticle},
@@ -131,7 +136,9 @@ export default class FoodSay extends Component {
     super(props)
     this.state = { 
       user:null,
-      logined:false
+      logined:false,
+      booted:false,
+      entered:false
     }
   }
 
@@ -141,12 +148,15 @@ export default class FoodSay extends Component {
 
   _asyncAppStatus(){
     let that = this
-    AsyncStorage.getItem('user')
+    AsyncStorage.multiGet(['user','entered'])
     .then((data)=>{
-      let user = this.state.user
-      let newState = {}
+      let userData=data[0][1]
+      let  entered=data[1][1]
+      let newState = {
+        booted:true
+      }
       if(data){
-        user = JSON.parse(data)
+        user = JSON.parse(userData)
       }
       //console.log(user.accessToken)
       if(user && user.accessToken){
@@ -156,6 +166,9 @@ export default class FoodSay extends Component {
         newState.logined = false
       }
 
+      if(entered === 'yes'){
+        newState.entered = true
+      }
       that.setState(newState)
     })
   }
@@ -182,7 +195,29 @@ export default class FoodSay extends Component {
     })
   }
 
+  _enterSlide(){
+    this.setState({
+      entered:true
+    },()=>{
+      AsyncStorage.setItem('entered','yes')
+    })
+  }
+
   render() {
+
+    if(!this.state.booted){
+      return(
+        <View style={styles.bootPage}>
+          <ActivityIndicator
+            style={[styles.loadingMore, {height: 26}]}
+            size="small"
+          />
+        </View>
+      )
+    }
+    if(!this.state.entered){
+      return <Slider enterSlide={this._enterSlide.bind(this)}/>
+    }
     if(!this.state.logined){
       return <Login afterLogin ={this._afterLogin.bind(this)}/>
     }
@@ -195,6 +230,21 @@ export default class FoodSay extends Component {
   }
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex:1,
+    backgroundColor: '#f5fcff'
+  },
+  bootPage:{
+    width:width,
+    height:height,
+    backgroundColor:'#fff',
+    justifyContent:'center'
+  },
+   loadingMore:{
+    marginVertical:20
+  }
+})
 
 
 AppRegistry.registerComponent('FoodSay', () => FoodSay);

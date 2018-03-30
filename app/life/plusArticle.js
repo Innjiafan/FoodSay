@@ -225,7 +225,7 @@ class PLusArticle extends Component {
       articlethumb:this.state.articlethumb,
       desc:this.state.desc,
       stepImage:this.state.stepImage,
-      author:this.state.user.accessToken
+      author:this.state.user._id
     };
 
     console.log(body)
