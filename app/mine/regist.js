@@ -79,7 +79,6 @@ class Regist extends Component {
             autoCaptialize={'none'}
             autoCorrect={false}
             underlineColorAndroid='transparent'
-            keyboardType={'numeric'}
             style={styles.inpuField}
             onChangeText={(text)=>{
               this.setState({
@@ -92,6 +91,7 @@ class Regist extends Component {
             autoCaptialize={'none'}
             autoCorrect={false}
             underlineColorAndroid='transparent'
+            secureTextEntry ={true}
             keyboardType={'numeric'}
             style={styles.inpuField}
             onChangeText={(text)=>{
@@ -104,6 +104,7 @@ class Regist extends Component {
             placeholder='再次输入密码'
             autoCaptialize={'none'}
             autoCorrect={false}
+            secureTextEntry ={true}
             underlineColorAndroid='transparent'
             keyboardType={'numeric'}
             style={styles.inpuField}

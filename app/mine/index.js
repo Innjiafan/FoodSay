@@ -27,9 +27,10 @@ import * as Progress from 'react-native-progress'
 //let ImagePicker = require('NativeModules').ImagePickerManager
 let ImagePicker = require('react-native-image-picker')
 
-import config  from './../common/config.js';
-import request from './../common/request.js';
+import config  from './../common/config.js'
+import request from './../common/request.js'
 import Login from './login.js'
+import navigationUtil from '../common/navigationUtil'
 let width = Dimensions.get('window').width
 
 //从相册选择图片
@@ -90,7 +91,8 @@ class Mine extends Component {
       let user
       if(data){
         user = JSON.parse(data)
-        //console.log(user)
+        console.log(111)
+        console.log(user)
       }
       if(user && user.accessToken){
         that.setState({
@@ -101,9 +103,19 @@ class Mine extends Component {
   }
 
   _edit(){
+    let that = this
     this.setState({
       modalVisible:true
     })
+   // request.get(config.api.base3+config.api.info,{
+   //    accessToken:this.state.user.accessToken
+   //  })
+   //  .then(data => {
+   //    //console.log(data)
+   //    that.setState({
+   //      user:data.data
+   //    })
+   //  })
   }
 
   _closeModal(){
@@ -289,7 +301,10 @@ class Mine extends Component {
   }
 
   _logout(){
-
+    Alert.alert('注销了')
+    //AsyncStorage.setItem('login','false')
+    AsyncStorage.removeItem('user')
+    navigationUtil.reset(this.props.navigation, 'Login')
   }
 
   _changeUserState(key,value){
@@ -308,15 +323,14 @@ class Mine extends Component {
     return (
       <View style = {styles.container} >
         <View style={styles.toolbar}>
-          <Text style={styles.toolbarTitle}>我的页面</Text>
+          <Text style={styles.toolbarTitle}>我</Text>
           <Text style={styles.toolbarEdit} onPress={this._logout.bind(this)}>注销</Text>
         </View>
-
         {
           user.avatar
           ?<View>
            <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
-              <Image source={{uri:avatar(user.avatar,'image')}} style={styles.avatarContainer}>
+               <Image source={{uri:avatar(user.avatar,'image')}} style={styles.avatarContainer}>
                 <View style={styles.avatarBox}>
                   {this.state.avatarUploading
                   ?<Progress.Circle 
@@ -497,7 +511,6 @@ const styles = StyleSheet.create({
     fontWeight:'600',
     fontSize:12
   },
-
   modalContainer:{
     flex:1,
     paddingTop:50,

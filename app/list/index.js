@@ -83,10 +83,11 @@ class Item extends Component{
     return(
         <View style = {styles.item}>
           <Text style = {styles.title}>{row.title}</Text>
-          <TouchableHighlight  onPress={() => this.props.navigation.navigate('Detail',{data:row})}>
+          <TouchableHighlight style={styles.imagebox}  onPress={() => this.props.navigation.navigate('Detail',{data:row}) }>
           <Image
-           style={styles.thumb}
+          
            source={{uri: row.thumb}}
+           style={styles.thumb}
           >
           <Icon 
             name = 'ios-play'
@@ -326,7 +327,7 @@ class List extends Component {
               style = {styles.plusVideo}
               onPress={()=>{this.props.navigation.navigate('PlusVideo')}}
           />
-          <Text style = {styles.headerTitle}>列表页面</Text>
+          <Text style = {styles.headerTitle}>首页</Text>
         </View>
         <View style={styles.searchBox}>
           <TextInput
@@ -375,9 +376,15 @@ const Root = StackNavigator({
   },
   Detail: {
     screen: Detail,
+    navigationOptions:{
+      tabBarVisible:false,
+    }
   },
   PlusVideo:{
     screen:PlusVideo,
+    navigationOptions:{
+      tabBarVisible:false,
+    }
   }
 },
 {
@@ -386,6 +393,7 @@ const Root = StackNavigator({
    navigationOptions: {
      gesturesEnabled: false,
      initialRouteName:List,
+
    }
  }
 )
@@ -393,7 +401,7 @@ const Root = StackNavigator({
 const styles = StyleSheet.create({
   container: {
     flex:1,
-    backgroundColor: '#f5fcff'
+    backgroundColor: '#fff',
   },
   header:{
     marginTop:Platform.OS === 'ios'?20:0,
@@ -450,12 +458,22 @@ const styles = StyleSheet.create({
     borderBottomWidth:1,
     borderColor:'#eee',
     backgroundColor: '#fff',
+    paddingLeft:14,
+    paddingRight:14,
   },
-
-  thumb:{
-    width:width,
+  imagebox:{
     height:width*0.56,
-    resizeMode:'cover'
+    // borderWidth:1,
+    // //borderColor:"#fff",
+    // borderRadius:25,
+  },
+  thumb:{
+    height:width*0.56,
+    resizeMode:'cover',
+    // borderWidth:1,
+    // //overflow:'hidden',
+    // borderRadius:8,
+    // borderColor:'#333'
   },
 
   title:{

@@ -65,6 +65,8 @@ class PLusArticle extends Component {
       articlethumb:null,
       desc:null,
       stepImage:[],
+
+      height:20,  
     }
   }
   //组件加载完成
@@ -186,7 +188,8 @@ class PLusArticle extends Component {
             let stepImage = this.state.stepImage
             let stepobj = {
               Image1:response.key,
-              desc1:null
+              desc1:null,
+              key:response.key
             }
             stepImage.push(stepobj)
             that.setState({
@@ -250,6 +253,17 @@ class PLusArticle extends Component {
       })
 
   }
+
+  _onChange(event) {
+   // let that  = this
+    console.log(event.nativeEvent.contentSize.height)
+      if (event.nativeEvent.contentSize.height > 20) {
+        height = event.nativeEvent.contentSize.height;//内容高度
+      } else {
+        height = this.state.height;
+      }
+      this.setState({height: height});
+  }
   render(){
     let that = this
     return (
@@ -267,7 +281,6 @@ class PLusArticle extends Component {
             autoCaptialize={'none'}
             autoCorrect={false}
             underlineColorAndroid='transparent'
-            keyboardType={'numeric'}
             style={styles.inputField}
             onChangeText={(text)=>{
               this.setState({
@@ -314,21 +327,22 @@ class PLusArticle extends Component {
               </View>
             </TouchableOpacity>
           }
-          
           <TextInput
-            placeholder='输入这道美食背后的故事'
+            placeholder={'输入这道美食背后的故事'}
             autoCaptialize={'none'}
             autoCorrect={false}
             multiline={true}
+           // value={this.state.commentVal}
             underlineColorAndroid='transparent'
-            keyboardType={'numeric'}
-            style={styles.inputField}
+            onChange = {this._onChange.bind(this)}
+            style={[{height:this.state.height},styles.inputField]}
             onChangeText={(text)=>{
               this.setState({
                 desc:text
               })
             }}
           />
+         
           <Text style={styles.dishPrac}>做法</Text>
           <View>
             <Text style={styles.dishPrac}>步骤1</Text>
@@ -377,7 +391,8 @@ class PLusArticle extends Component {
               autoCorrect={false}
               multiline={true}
               underlineColorAndroid='transparent'
-              style={styles.inputField}
+              onChange = {this._onChange.bind(this)}
+              style={[styles.inputField,{height:this.state.height}]}
               onChangeText={(text)=>{
                     this.state.stepImage[0].desc1 = text
                   }}
@@ -430,8 +445,8 @@ class PLusArticle extends Component {
               autoCorrect={false}
               multiline={true}
               underlineColorAndroid='transparent'
-              keyboardType={'numeric'}
-              style={styles.inputField}
+              onChange = {this._onChange.bind(this)}
+              style={[styles.inputField,{height:this.state.height}]}
               onChangeText={(text)=>{
                   this.state.stepImage[1].desc1 = text
               }}
@@ -484,8 +499,8 @@ class PLusArticle extends Component {
                 autoCorrect={false}
                 multiline={true}
                 underlineColorAndroid='transparent'
-                keyboardType={'numeric'}
-                style={styles.inputField}
+                onChange = {this._onChange.bind(this)}
+                style={[styles.inputField,{height:this.state.height}]}
                 onChangeText={(text)=>{
                     this.state.stepImage[2].desc1 = text
                     console.log(this.state.stepImage)
@@ -542,8 +557,8 @@ class PLusArticle extends Component {
                 autoCorrect={false}
                 multiline={true}
                 underlineColorAndroid='transparent'
-                keyboardType={'numeric'}
-                style={styles.inputField}
+                onChange = {this._onChange.bind(this)}
+                style={[styles.inputField,{height:this.state.height}]}
                 onChangeText={(text)=>{
                     this.state.stepImage[3].desc1 = text
                     console.log(this.state.stepImage)
@@ -617,12 +632,12 @@ const styles = StyleSheet.create({
       flexDirection:'column',
     },
     inputField:{
+      width:width,
       paddingTop:20,
       paddingBottom:20,
+      backgroundColor:'#fff',
       color:'#666',
       fontSize:16,
-      backgroundColor:'#fff',
-      borderRadius:4
     },
     photoContainer:{
       width:width,

@@ -24,6 +24,7 @@ import Message from './app/message/index.js';
 import Mine from './app/mine/index.js';
 import Life from './app/life/index.js'
 import Login from './app/mine/login.js';
+import Regist from './app/mine/regist.js'
 import Slider from './app/mine/slider.js';
 import PlusArticle from './app/life/plusArticle.js'
 import ArticleDetail from './app/life/detail.js'
@@ -32,8 +33,16 @@ let width = Dimensions.get('window').width
 let height = Dimensions.get('window').height
 const Second = StackNavigator({
   Life:{screen:Life},
-  PlusArticle:{screen:PlusArticle},
-  ArticleDetail:{screen:ArticleDetail}
+  PlusArticle:{
+    screen:PlusArticle,
+    navigationOptions:{
+      tabBarVisible:false,
+    }},
+  ArticleDetail:{
+    screen:ArticleDetail,
+    navigationOptions:{
+      tabBarVisible:false,
+    }}
   },
   {
    headerMode: 'none',
@@ -46,7 +55,18 @@ const Second = StackNavigator({
 
 const AllMine = StackNavigator({
   Mine:{screen:Mine},
-  Login:{screen:Login}
+  Login:{
+    screen:Login,
+    navigationOptions:{
+      tabBarVisible:false,
+    }
+  },
+  Regist:{
+    screen:Regist,
+    navigationOptions:{
+      tabBarVisible:false,
+    }
+  },
   },
   {
    headerMode: 'none',
@@ -56,6 +76,7 @@ const AllMine = StackNavigator({
      initialRouteName:Mine,
    }
  })
+
 const RootTabs = TabNavigator({
   Root: {
     screen: Root,
@@ -64,7 +85,7 @@ const RootTabs = TabNavigator({
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
           name={focused ? 'ios-home' : 'ios-home-outline'}
-          size={22}
+          size={24}
           style={{ color: tintColor }}
         />
       )}
@@ -76,7 +97,7 @@ const RootTabs = TabNavigator({
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
           name={focused ? 'ios-list' : 'ios-list-outline'}
-          size={22}
+          size={24}
           style={{ color: tintColor }}
         />
       )}
@@ -88,7 +109,7 @@ const RootTabs = TabNavigator({
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
           name={focused ? 'ios-book' : 'ios-book-outline'}
-          size={22}
+          size={24}
           style={{ color: tintColor }}
         />
       )}
@@ -100,7 +121,7 @@ const RootTabs = TabNavigator({
       tabBarIcon: ({ tintColor, focused }) => (
         <Ionicons
           name={focused ? 'ios-person' : 'ios-person-outline'}
-          size={22}
+          size={24}
           style={{ color: tintColor }}
         />
       )})
@@ -112,9 +133,11 @@ const RootTabs = TabNavigator({
     inactiveTintColor:'#333',
     showLabel:true,
     showIcon:true,
+    lazy:true,
     style: {
       backgroundColor: '#fff',
-      padding:0
+      padding:0,
+      paddingBottom:6
     },
     indicatorStyle:{
       width:0
@@ -131,7 +154,32 @@ const RootTabs = TabNavigator({
 
   }
 })
+
+
+// const RootTabs = StackNavigator({
+//       Login: {
+//         screen: Login
+//       },
+//       Main: {
+//         screen: Main
+//       },
+//       Regist: {
+//         screen: Regist
+//       }
+//     }, {
+//       headerMode: 'none',
+//       mode: 'modal',
+//       navigationOptions: {
+//         gesturesEnabled: false,
+//         initialRouteName:isLoggedIn ? 'Main' : 'Login'
+//       }
+//   });
+  // function configAppNavigator(isLoggedIn) {
+  //   return  RootTabs
+  // }
+
 export default class FoodSay extends Component {
+
   constructor(props) {
     super(props)
     this.state = { 
@@ -143,6 +191,7 @@ export default class FoodSay extends Component {
   }
 
   componentDidMount(){
+    //AsyncStorage.removeItem('entered')
     this._asyncAppStatus()
   }
 
@@ -203,8 +252,9 @@ export default class FoodSay extends Component {
     })
   }
 
-  render() {
 
+  render() {
+    let that = this
     if(!this.state.booted){
       return(
         <View style={styles.bootPage}>
@@ -218,14 +268,18 @@ export default class FoodSay extends Component {
     if(!this.state.entered){
       return <Slider enterSlide={this._enterSlide.bind(this)}/>
     }
+
     if(!this.state.logined){
       return <Login afterLogin ={this._afterLogin.bind(this)}/>
     }
+
+    //const AppNavigator = configAppNavigator(this.state.isLogined)
+
    // if(this.state.logined){
    //    return <Mine user={this.state.user} logout={this._logout.bind(this)}/>
    //  } 
     return (
-        <RootTabs/>
+        <RootTabs />
     );
   }
 }

@@ -12,10 +12,10 @@ module.exports = {
 		upload:'http://upload.qiniup.com/'
 	},
 	api: {
-		base1:'http://rap2api.taobao.org/app/mock/2009/GET/',
-		base2:'http://rap2api.taobao.org/app/mock/2009/POST/',
-		//base1:'http://localhost:1234/',
-		base3:'http://10.43.168.39:1234/',
+		//base3:'	http://rap2api.taobao.org/app/mock/2009/',
+		//base2:'http://rap2api.taobao.org/app/mock/2009/POST/',
+		//base3:'http://localhost:1234/',
+		base3:'http://192.168.43.61:1234/',
 		//评论
 		commentlist:'api/detail/commentslist',
 		comment:'api/detail/comments',
@@ -26,6 +26,7 @@ module.exports = {
 		update:'api/u/update',
 		login:'api/u/login',
 		regist:'api/u/regist',
+		info:'api/u/info',
 		//视频
 		up:'api/creations/vote',
 		list:'api/creations/list',
@@ -33,6 +34,7 @@ module.exports = {
 		searchVideo:'api/creations/searchVideo',
 		//文章
 		articlelist:'api/article/list',
-		addArticle:'api/article/addArticle'
+		addArticle:'api/article/addArticle',
+		searchArticle:'api/article/searchArticle'
 	}
 }

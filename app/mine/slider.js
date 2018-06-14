@@ -50,7 +50,9 @@ class Slider extends Component {
           <View style={styles.slide}>
             <Image style={styles.image} source={
               this.state.banners[2]
-            }></Image>
+            }>
+         
+            </Image>
           </View>
           <View style={styles.slide}>
             <Image style={styles.image} source={
@@ -61,7 +63,7 @@ class Slider extends Component {
             <Image style={styles.image} source={
               this.state.banners[0]
             }>
-              <Text
+             <Text
               style={styles.btn}
               onPress={this._enter.bind(this)}
               >进入app</Text>

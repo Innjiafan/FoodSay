@@ -36,7 +36,7 @@ class Message extends Component {
       <View style = {styles.container} >
         <View style={styles.toolbar}>
           <Text style={styles.toolbarTitle}>
-           我的信箱
+           信箱
           </Text>
         </View>
         <View style={styles.item}>

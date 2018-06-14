@@ -13,13 +13,15 @@ import {
   TextInput,
   Dimensions,
   Alert,
-  Platform
+  Platform,
+  AsyncStorage
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button'
 import { StackNavigator } from 'react-navigation'
 
+import navigationUtil from '../common/navigationUtil'
 import config  from './../common/config.js';
 import request from './../common/request.js';
 import Regist from './regist.js'
@@ -53,8 +55,12 @@ class Login extends Component {
     console.log(loginUrl)
     request.post(loginUrl,body)
       .then((data)=>{
+        console.log(111+JSON.stringify(data))
         if(data && data.success){
           console.log(data.data)
+          // navigationUtil.reset(this.props.navigation, 'Main')
+          // AsyncStorage.setItem('user',JSON.stringify(data.data))
+          // console.log(AsyncStorage.getItem('user'))
           that.props.afterLogin(data.data)
           //that.props.navigation.navigate('Main',{data:data.data})
         }else{
@@ -67,6 +73,9 @@ class Login extends Component {
       })
   }
 
+  _regist(){
+    this.props.navigation.navigate('Regist')
+  }
   render(){
     return (
       <View style = {styles.container} >
@@ -79,7 +88,6 @@ class Login extends Component {
             autoCaptialize={'none'}
             autoCorrect={false}
             underlineColorAndroid='transparent'
-            keyboardType={'numeric'}
             style={styles.inpuField}
             onChangeText={(text)=>{
               this.setState({
@@ -91,6 +99,7 @@ class Login extends Component {
             placeholder='输入密码'
             autoCaptialize={'none'}
             autoCorrect={false}
+            secureTextEntry ={true}
             underlineColorAndroid='transparent'
             keyboardType={'numeric'}
             style={styles.inpuField}
@@ -104,15 +113,14 @@ class Login extends Component {
               style={styles.btn}
               onPress={this._submit.bind(this)}>登录</Button>
           <View style={styles.signInBox}>
-            <Text>还没账号？<Text style={styles.signIn} onPress={()=>{
-               this.props.navigation.navigate('Regist')
-            }}>前去注册</Text></Text>
+            <Text>还没账号？<Text style={styles.signIn} onPress={this._regist.bind(this)}>前去注册</Text></Text>
           </View>
         </View>
       </View>
       )
   }
 }
+
 // const Login = StackNavigator({
 //   Loginer: {
 //     screen: Loginer,

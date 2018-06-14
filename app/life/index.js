@@ -120,7 +120,8 @@ class Life extends Component {
       })
     }
       request.get(config.api.base3+config.api.articlelist,{
-        page:page
+        page:page,
+        len:cachedResults.items.length
       }) 
       .then(data => {
           console.log(data)
@@ -131,6 +132,9 @@ class Life extends Component {
             items = items.concat(data.data)
             cachedResults.nextPage += 1
           }else{
+            that.setState({
+              dataSource:ds.cloneWithRows([])
+            })
             items = data.data.concat(items)
           }
 
@@ -194,7 +198,7 @@ class Life extends Component {
   }
   //底部下拉数据提示信息
   _renderFooter(){
-      if(!this._hasMore()&&cachedResults.total !== 0){
+      if(!this._hasMore()&&cachedResults.total !== 0&&this.state.isRefreshing===false){
         return(
           <View style = {styles.loadingMore}>
             <Text style = {styles.loadingText}>没有更多了</Text>
@@ -216,6 +220,34 @@ class Life extends Component {
   }
 
   _searchSubmit(){
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    let that = this
+    this.setState({
+        isRefreshing:true,
+        dataSource:ds.cloneWithRows([])
+    })
+    let searchtext = this.state.searchtext
+    request.get(config.api.base3+config.api.searchArticle,{
+      searchtext:searchtext
+    })
+    .then(data => {
+        console.log(data)
+       if(data.success){
+          setTimeout(()=>{
+             that.setState({
+                isRefreshing:false,
+                dataSource: that.state.dataSource.cloneWithRows(
+                data.data)
+              })   
+          },2000)         
+        }
+      })
+      .catch(error => {
+        that.setState({
+          isRefreshing:false
+        })
+        console.error(error);
+      })
     
   }
   render(){
@@ -229,7 +261,7 @@ class Life extends Component {
               onPress={this._plusArticle.bind(this)}
           />
           <Text style={styles.toolbarTitle}>
-           生活社区
+           生活
           </Text>
         </View>
         <View style={styles.searchBox}>
@@ -336,6 +368,8 @@ const styles = StyleSheet.create({
     borderBottomWidth:1,
     borderColor:'#eee',
     backgroundColor: '#fff',
+    paddingLeft:14,
+    paddingRight:14,
   },
 
   thumb:{
@@ -349,7 +383,9 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     padding: 10,
     position:'relative',
-    height:width*.22
+    height:width*.22,
+    paddingLeft:14,
+    paddingRight:14
     //alignItems:'flex-start'
   },
   itemauthor:{
@@ -357,7 +393,7 @@ const styles = StyleSheet.create({
     flexDirection:'column',
     position:'absolute',
     top:8,
-    right:10,
+    right:26,
     alignItems:'flex-end'
   },
   avatarthumb:{
